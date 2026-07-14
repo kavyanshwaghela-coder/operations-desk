@@ -1,1 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickShift Portal - Security Login Gateway</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .brand-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+    .brand-bg { background-color: #1e293b; }
+  </style>
+</head>
+<body class="brand-gradient min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden border border-slate-100">
+    <div class="h-1.5 w-full bg-amber-500 absolute top-0 left-0"></div>
+    <div class="flex justify-center items-center space-x-2.5 mb-5 mt-2">
+      <svg class="w-9 h-9" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="45" fill="#1e293b"/><circle cx="50" cy="50" r="40" stroke="#f59e0b" stroke-width="5" fill="none"/><path d="M52 22L32 54H48L44 78L68 42H50L52 22Z" fill="#ffffff"/></svg>
+      <span class="font-black text-2xl tracking-tight italic text-slate-900">Quick<span class="text-amber-400">Shift</span></span>
+    </div>
+    <h2 class="text-xl font-bold text-center text-gray-800">Operational Portal</h2>
+    <p class="text-xs text-center text-gray-400 mb-6">B2B Workflow & Gatepass Infrastructure Access</p>
+    <div id="statusMessage" class="text-xs mb-4 text-center hidden p-2.5 rounded-lg font-semibold"></div>
+    
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-xs font-bold mb-1">Email ID *</label>
+        <input type="email" id="email" required placeholder="user@quickshift.com" class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-slate-700">
+      </div>
+      <div class="mb-3">
+        <div class="flex justify-between items-center mb-1">
+          <label class="block text-gray-700 text-xs font-bold">Password *</label>
+          <button type="button" onclick="handleOtpRequestFlow('forgot')" class="text-amber-600 hover:underline text-[11px] font-semibold">Forgot Password?</button>
+        </div>
+        <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-slate-700">
+      </div>
+      <div class="mb-4 flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
+        <span class="text-gray-600 text-[11px] font-medium">Alternative Verification:</span>
+        <button type="button" onclick="handleOtpRequestFlow('login')" class="text-amber-600 hover:text-amber-700 text-xs font-bold">📲 Sign In via Email OTP</button>
+      </div>
+      <button type="submit" id="loginBtn" class="w-full brand-bg text-white py-2.5 rounded-md font-bold text-sm">Access Workspace</button>
+    </form>
 
+    <div id="otpVerificationBlock" class="hidden mt-5 pt-4 border-t-2 border-dashed border-slate-200 bg-slate-50 p-4 rounded-xl">
+      <h3 id="otpBlockTitle" class="text-xs font-bold uppercase text-slate-700 tracking-wider mb-2">Secure Validation Required</h3>
+      <input type="text" id="otpTokenInput" maxlength="6" placeholder="------" class="w-full text-center px-4 py-2 border rounded font-mono text-xl font-black tracking-[0.5em] mb-3 text-slate-800">
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="cancelOtpVerificationFlow()" class="bg-slate-200 text-slate-700 py-2 rounded text-xs font-bold">Cancel</button>
+        <button type="button" onclick="executePasswordOtpVerification()" class="bg-amber-500 text-slate-950 py-2 rounded text-xs font-bold">Verify Code</button>
+      </div>
+    </div>
+
+    <div id="passwordResetBlock" class="hidden mt-5 pt-4 border-t-2 border-dashed border-slate-200 bg-slate-50 p-4 rounded-xl">
+      <h3 class="text-xs font-bold uppercase text-slate-700 mb-2">🔑 Setup New Password</h3>
+      <input type="password" id="newPassInput" placeholder="Enter new password" class="w-full px-2 py-1.5 border rounded text-sm mb-2">
+      <input type="password" id="confirmPassInput" placeholder="Re-enter password" class="w-full px-2 py-1.5 border rounded text-sm mb-3">
+      <button type="button" onclick="submitNewPasswordData()" id="savePassBtn" class="w-full bg-emerald-600 text-white font-bold py-2 rounded text-xs">Save New Password</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "YOUR_GOOGLE_WEB_APP_URL"; // <-- PASTE YOUR APPS SCRIPT URL HERE
+    var currentTrueOtpSeed = "", otpPurpose = "forgot";
+
+    async function callBackend(action, payload = {}) {
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action, payload, userEmail: localStorage.getItem('logged_session_email') || "" })
+        });
+        return await response.json();
+      } catch (err) {
+        return { success: false, message: "Connection error: " + err.toString() };
+      }
+    }
+
+    window.onload = function() {
+      if(localStorage.getItem('logged_session_email')) window.location.href = "form.html";
+    };
+
+    function showMessage(txt, isSuccess) {
+      var msg = document.getElementById('statusMessage');
+      msg.innerText = txt; msg.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-green-50', 'text-green-700');
+      msg.classList.add(isSuccess ? 'bg-green-50' : 'bg-red-50', isSuccess ? 'text-green-700' : 'text-red-700');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      var email = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value.trim();
+      var btn = document.getElementById('loginBtn');
+      btn.disabled = true; btn.innerText = "Verifying...";
+      const res = await callBackend("checkLogin", { email, password });
+      if (res.success) {
+        localStorage.setItem('logged_session_email', res.email);
+        localStorage.setItem('active_workflow_dept', 'B2B Dispatch');
+        localStorage.setItem('current_view_target', 'entry-view');
+        window.location.href = "form.html";
+      } else {
+        showMessage(res.message, false); btn.disabled = false; btn.innerText = "Access Workspace";
+      }
+    }
+
+    async function handleOtpRequestFlow(purpose) {
+      var email = document.getElementById('email').value.trim();
+      otpPurpose = purpose;
+      if(!email) return showMessage("Type your Email ID first.", false);
+      showMessage("Processing security request...", true);
+      const res = await callBackend("requestPasswordOtp", { email });
+      if(res.success) {
+        currentTrueOtpSeed = res.trueOtpSeed;
+        document.getElementById('otpVerificationBlock').classList.remove('hidden');
+        showMessage("OTP passcode sent successfully.", true);
+      } else showMessage(res.message, false);
+    }
+
+    async function executePasswordOtpVerification() {
+      var email = document.getElementById('email').value.trim();
+      var userEnteredOtp = document.getElementById('otpTokenInput').value.trim();
+      const res = await callBackend("verifyOtpAndRetrievePassword", { email, userEnteredOtp, trueOtp: currentTrueOtpSeed });
+      if(res.success) {
+        if (otpPurpose === 'login') {
+          localStorage.setItem('logged_session_email', email);
+          window.location.href = "form.html";
+        } else {
+          document.getElementById('otpVerificationBlock').classList.add('hidden');
+          document.getElementById('passwordResetBlock').classList.remove('hidden');
+        }
+      } else showMessage(res.message, false);
+    }
+
+    async function submitNewPasswordData() {
+      var email = document.getElementById('email').value.trim();
+      var newPass = document.getElementById('newPassInput').value.trim();
+      const res = await callBackend("updateUserPassword", { email, newPassword: newPass });
+      if(res.success) {
+        document.getElementById('passwordResetBlock').classList.add('hidden');
+        showMessage("Password updated successfully!", true);
+      } else showMessage(res.message, false);
+    }
+
+    function cancelOtpVerificationFlow() { document.getElementById('otpVerificationBlock').classList.add('hidden'); }
+  </script>
+</body>
+</html>
