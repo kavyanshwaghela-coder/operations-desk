@@ -1,1 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickShift Master Operations Desk Workspace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .brand-bg { background-color: #1e293b; }
+    .menu-transition { transition: max-height 0.3s ease-out, opacity 0.2s ease-out; }
+    @media print {
+      body > nav, #sidebarMenu, form, #view-reprint, #view-dashboard, #statusMsg, .no-print, button, .menu-trigger { display: none !important; }
+      body, html { background-color: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; }
+      #printArea { display: block !important; border: none !important; width: 100% !important; max-width: 100% !important; position: absolute; left: 0; top: 0; }
+      #printArea table { width: 100% !important; border-collapse: collapse !important; margin-top: 1.5rem !important; }
+      #printArea th, #printArea td { border: 1px solid #000000 !important; padding: 8px !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-800 flex flex-col">
 
+  <nav class="brand-bg text-white px-4 py-3 flex justify-between items-center shadow-md relative z-40">
+    <div class="flex items-center space-x-3">
+      <button onclick="toggleSidebar()" class="menu-trigger text-white hover:text-amber-400 focus:outline-none mr-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="font-black text-xl italic">Quick<span class="text-amber-400">Shift</span></span>
+      <span id="moduleTitle" class="hidden sm:inline-block font-bold text-xs bg-slate-700 text-amber-400 px-2.5 py-1 rounded">Operations Desk</span>
+    </div>
+    <span id="userDisplay" class="text-xs bg-slate-800 px-3 py-1 rounded font-mono border border-slate-700">User</span>
+  </nav>
+
+  <!-- Sidebar Layout Tree Menu -->
+  <div id="sidebarMenu" class="fixed top-0 left-0 h-full w-64 bg-slate-900 text-slate-200 transform -translate-x-full transition-transform duration-300 z-50 shadow-2xl flex flex-col justify-between border-r border-slate-800 overflow-y-auto">
+    <div>
+      <div class="brand-bg p-4 flex justify-between items-center border-b border-slate-800">
+        <span class="font-black text-white text-md">Navigation Hub</span>
+        <button onclick="toggleSidebar()" class="text-slate-400 text-xl">&times;</button>
+      </div>
+      <nav class="p-3 space-y-3">
+        <!-- B2B DISPATCH -->
+        <div>
+          <button onclick="toggleSubMenu('menu-b2b')" class="w-full flex items-center justify-between py-2 px-3 rounded text-sm font-bold text-slate-400 hover:bg-slate-800">
+            <span>🚚 B2B Dispatch</span><span id="arrow-menu-b2b">▼</span>
+          </button>
+          <div id="menu-b2b" class="menu-transition overflow-hidden max-h-0 opacity-0 pl-4 space-y-1">
+            <button onclick="activateModuleWorkflow('B2B Dispatch', 'entry-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-b2b-entry">▪ Data Entries</button>
+            <button onclick="activateModuleWorkflow('B2B Dispatch', 'correction-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-b2b-correction">▪ Correction</button>
+            <button onclick="activateModuleWorkflow('B2B Dispatch', 'reprint-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-b2b-reprint">▪ Reprint Gatepass</button>
+            <button onclick="activateModuleWorkflow('B2B Dispatch', 'dashboard-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-b2b-dashboard">▪ System Dashboard</button>
+          </div>
+        </div>
+        <!-- INVENTORY INWARD -->
+        <div>
+          <button onclick="toggleSubMenu('menu-inventory')" class="w-full flex items-center justify-between py-2 px-3 rounded text-sm font-bold text-slate-400 hover:bg-slate-800">
+            <span>📦 Inventory Inward</span><span id="arrow-menu-inventory">▼</span>
+          </button>
+          <div id="menu-inventory" class="menu-transition overflow-hidden max-h-0 opacity-0 pl-4 space-y-1">
+            <button onclick="activateModuleWorkflow('Inventory Logging', 'entry-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-inv-entry">▪ Data Entries</button>
+            <button onclick="activateModuleWorkflow('Inventory Logging', 'product-master-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-inv-pm">▪ Product Master List</button>
+            <button onclick="activateModuleWorkflow('Inventory Logging', 'dashboard-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-inv-dashboard">▪ System Dashboard</button>
+          </div>
+        </div>
+        <!-- RTO OPERATIONS -->
+        <div>
+          <button onclick="toggleSubMenu('menu-rto')" class="w-full flex items-center justify-between py-2 px-3 rounded text-sm font-bold text-slate-400 hover:bg-slate-800">
+            <span>🔄 RTO Operations</span><span id="arrow-menu-rto">▼</span>
+          </button>
+          <div id="menu-rto" class="menu-transition overflow-hidden max-h-0 opacity-0 pl-4 space-y-1">
+            <button onclick="activateModuleWorkflow('RTO (IN)', 'entry-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-rto-entry">▪ Data Entries</button>
+            <button onclick="activateModuleWorkflow('RTO (IN)', 'dashboard-view')" class="w-full text-left py-1.5 text-xs text-slate-300" id="sub-rto-dashboard">▪ System Dashboard</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div class="p-4 bg-slate-950/50"><button onclick="triggerLogout()" class="w-full bg-red-600/20 text-red-400 py-2 rounded text-xs font-bold">🔒 Logout</button></div>
+  </div>
+  <div id="menuBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 hidden z-30"></div>
+
+  <!-- Main Active Area View Ports Placeholder -->
+  <main class="flex-grow p-3 md:p-6 max-w-5xl w-full mx-auto">
+    <div id="statusMsg" class="hidden mb-4 p-3 rounded font-bold text-center text-sm shadow"></div>
+
+    <!-- Active Form Display Blocks Framework -->
+    <div id="view-entry" class="app-view bg-white rounded-lg shadow p-4 md:p-6 border border-slate-100">
+      <div id="dynamicFormContainer">
+         <!-- Dynamic HTML Form blocks will be structural triggers injected here dynamically -->
+         <div id="b2bFormPlaceholder"></div>
+         <div id="inventoryFormPlaceholder"></div>
+         <div id="rtoFormPlaceholder"></div>
+      </div>
+    </div>
+
+    <div id="view-product-master" class="app-view bg-white rounded-lg shadow p-4 md:p-6 border border-slate-100 hidden">
+       <div id="productMasterPlaceholder"></div>
+    </div>
+
+    <!-- Universal Search / Reprint Layout -->
+    <div id="view-reprint" class="app-view bg-white rounded-lg shadow p-4 md:p-6 hidden">
+      <h2 id="reprintHeaderTitle" class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Reprint Historical Slip</h2>
+      <div class="bg-slate-50 p-4 rounded-lg border mb-6 max-w-md space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-gray-600 mb-1">Target Workspace Module *</label>
+          <select id="reprintSourceDept" onchange="adjustReprintLabelsText()" class="w-full p-2 border rounded-md text-sm text-slate-700">
+            <option value="B2B Dispatch">B2B Dispatch (Tab1)</option>
+            <option value="Inventory Logging">Inventory Inward (Tab4)</option>
+            <option value="RTO (IN)">RTO Operations (Tab5/Tab6)</option>
+          </select>
+        </div>
+        <div>
+          <label id="reprintSeriesInputLabel" class="block text-xs font-bold text-gray-600 mb-1">Enter Series ID *</label>
+          <div class="flex space-x-2">
+            <input type="text" id="searchSeriesId" placeholder="e.g. 1001, IN-0001" class="w-full p-2 border rounded text-sm uppercase font-mono bg-white">
+            <button onclick="executeReprintQuery()" id="searchBtn" class="bg-amber-500 text-slate-950 font-bold px-5 text-xs rounded shadow-xs">Search</button>
+          </div>
+        </div>
+      </div>
+      <div id="reprintStatusMsg" class="text-sm font-semibold text-gray-500 italic">Enter identifier reference code to query records.</div>
+    </div>
+
+    <!-- Correction Panel Workspace -->
+    <div id="view-correction" class="app-view bg-white rounded-lg shadow p-4 md:p-6 border border-slate-100 hidden">
+      <h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Invoice / LR Correction Engine</h2>
+      <div class="bg-slate-50 p-4 rounded-lg border max-w-xl space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-600 mb-1">Selection Scope *</label>
+          <select id="corrType" onchange="updateCorrectionLabels()" class="w-full p-2 border rounded-md text-sm">
+            <option value="inv_against_lr">Correct Invoice Number (Using LR Number)</option>
+            <option value="lr_against_inv">Correct LR Number (Using Invoice Number)</option>
+          </select>
+        </div>
+        <div>
+          <label id="searchKeyLabel" class="block text-xs font-bold text-gray-600 mb-1">Enter Known LR Number *</label>
+          <input type="text" id="corrSearchKey" class="w-full p-2 border rounded text-sm bg-white">
+        </div>
+        <div>
+          <label id="newValueLabel" class="block text-xs font-bold text-gray-600 mb-1">Enter Corrected Code *</label>
+          <input type="text" id="corrNewValue" class="w-full p-2 border rounded text-sm bg-white">
+        </div>
+        <button type="button" onclick="runDatabaseCorrectionRoutine()" class="w-full bg-red-600 text-white font-bold py-2 rounded text-xs uppercase shadow-sm">Execute Correction Repair</button>
+      </div>
+    </div>
+
+    <!-- Live Management Dashboard Matrix Dashboard View Layout -->
+    <div id="view-dashboard" class="app-view bg-white rounded-lg shadow p-4 md:p-6 border border-slate-100 hidden">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-4 mb-4 gap-3">
+        <h2 class="text-xl font-bold text-slate-700">Central Ledger Operations Archive (<span id="dashTabTitle">Tab1</span>)</h2>
+        <button onclick="exportFilteredDataToExcel()" class="bg-emerald-600 text-white font-bold text-xs py-2 px-4 rounded shadow-sm">📥 Export Filtered Excel</button>
+      </div>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2.5 mb-6 bg-slate-100 p-3 rounded-lg border">
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">From</label><input type="date" id="filterFromDate" onchange="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">To</label><input type="date" id="filterToDate" onchange="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Series ID</label><input type="text" id="searchSeries" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Context</label><input type="text" id="searchDept" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Invoice</label><input type="text" id="searchInvoice" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">LR/Status</label><input type="text" id="searchLr" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+        <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Transporter</label><input type="text" id="searchTransporter" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
+      </div>
+
+      <div class="mt-4 flex justify-between items-center text-xs bg-slate-100 p-3 border rounded font-medium mb-2">
+        <div>Active Status Matrix:</div>
+        <div class="brand-bg text-white px-3 py-1 rounded font-mono font-bold"><span id="rowCountLabel">0</span> Lines Loaded</div>
+      </div>
+
+      <div class="overflow-x-auto border border-gray-200 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200 text-xs text-left">
+          <thead class="brand-bg text-white uppercase tracking-wider text-[10px]">
+            <tr>
+              <th id="thSeriesId" class="px-3 py-3">Series ID / Item</th>
+              <th class="px-3 py-3">Date / Time</th>
+              <th class="px-3 py-3">Context</th>
+              <th class="px-3 py-3">Transporter</th>
+              <th class="px-3 py-3">Vehicle No.</th>
+              <th class="px-3 py-3">Driver Profile</th>
+              <th class="px-3 py-3">Invoice / Ref No.</th>
+              <th class="px-3 py-3 text-center">Qty / Boxes</th>
+              <th class="px-3 py-3">LR / Remark</th>
+              <th class="px-3 py-3 text-center">Pallets / Status</th>
+              <th class="px-3 py-3">Incharge</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-gray-200 bg-white text-gray-600">
+            <tr><td colspan="11" class="text-center p-6 text-gray-400 font-medium">Synchronizing records data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- PRINT SLIP ARCHIVE OUTPUT BLOCKS -->
+  <div id="printArea" class="hidden p-8 bg-white text-black max-w-3xl mx-auto border-2 border-gray-800 mt-6">
+    <div class="flex items-center justify-center space-x-3 border-b-2 border-black pb-4 mb-4">
+      <div class="text-left"><h1 class="text-2xl font-black tracking-tight uppercase" id="pdfTitle">QUICKSHIFT GATEPASS SLIP</h1></div>
+    </div>
+    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs mb-4 pb-2 border-b">
+      <div><strong id="pdfSeriesLabel">Series ID:</strong> <span id="pdfSeries" class="font-mono underline font-bold"></span></div>
+      <div><strong>Date & Time Slot:</strong> <span id="pdfDate"></span> @ <span id="pdfTime" class="font-mono"></span></div>
+      <div><strong>Module Context:</strong> <span id="pdfDept"></span></div>
+      <div><strong>Transporter:</strong> <span id="pdfTransporter"></span></div>
+      <div><strong>Vehicle Registration No:</strong> <span id="pdfVehicle" class="uppercase font-bold"></span></div>
+      <div><strong>Driver Profile:</strong> <span id="pdfDriver"></span> (<span id="pdfMobile"></span>)</div>
+      <div id="pdfPalletContainer"><strong>Pallets:</strong> <span id="pdfPallets"></span></div>
+      <div><strong id="pdfInchargeLabel">Incharge Assigned:</strong> <span id="pdfIncharge"></span></div>
+      <div id="pdfInvMetaContainer" class="col-span-2 hidden grid grid-cols-2 gap-2 mt-1 bg-slate-50 p-1.5 rounded border border-gray-300">
+         <div><strong>PO / Invoice Identifier:</strong> <span id="pdfInvPo" class="font-mono font-semibold"></span></div>
+         <div><strong>LR Inward Token ID:</strong> <span id="pdfInvLr" class="font-mono font-semibold"></span></div>
+      </div>
+    </div>
+    <table class="w-full text-left text-xs border-collapse border border-black">
+      <thead id="pdfTableHeader"></thead>
+      <tbody id="pdfTableBody"></tbody>
+    </table>
+    <div class="mt-16 flex justify-between items-center text-xs px-4">
+      <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><strong>Driver Signature</strong></div>
+      <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><strong>Authorized Signature</strong></div>
+    </div>
+    <button onclick="window.print()" class="mt-8 bg-slate-800 text-white text-xs px-5 py-2.5 rounded no-print block mx-auto font-bold shadow">Trigger Device Print Command</button>
+  </div>
+
+  <script>
+    const API_URL = "YOUR_GOOGLE_WEB_APP_URL"; // <-- PASTE YOUR APPS SCRIPT URL HERE
+    var currentUserEmail = localStorage.getItem('logged_session_email') || "System Admin";
+    var masterData = [], currentlyFilteredData = [], globalProductMasterList = [];
+    var workflowDept = localStorage.getItem('active_workflow_dept') || "B2B Dispatch";
+    var currentViewTarget = localStorage.getItem('current_view_target') || "entry-view";
+    var isSubmissionHaltedForDuplicate = false;
+
+    document.getElementById('userDisplay').innerText = currentUserEmail;
+    document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
+
+    async function callBackend(actionName, payloadData = {}) {
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: actionName, payload: payloadData, userEmail: currentUserEmail })
+        });
+        return await response.json();
+      } catch (err) {
+        return { success: false, message: "API Matrix Query Error: " + err.toString() };
+      }
+    }
+
+    // Dynamic Script Injection Function to load separate workflow layout files cleanly
+    function injectModuleFileScript(srcFile) {
+      const script = document.createElement('script');
+      script.src = srcFile;
+      script.async = false;
+      document.head.appendChild(script);
+    }
+
+    window.onload = async function() {
+      if(!localStorage.getItem('logged_session_email')) { window.location.href = "index.html"; return; }
+      
+      // Inject components dynamically from individual logic script files
+      injectModuleFileScript('b2b-dispatch.js');
+      injectModuleFileScript('product-master.js');
+      injectModuleFileScript('inventory-inward.js');
+      injectModuleFileScript('rto-returns.js');
+
+      setTimeout(async () => {
+        if(workflowDept === "B2B Dispatch") toggleSubMenu('menu-b2b', true);
+        else if(workflowDept === "Inventory Logging") toggleSubMenu('menu-inventory', true);
+        else if(workflowDept === "RTO (IN)") toggleSubMenu('menu-rto', true);
+
+        evaluateActiveWorkflowViewState();
+        switchView(currentViewTarget);
+
+        const dropdownRes = await callBackend("getDropdownData");
+        if(dropdownRes && !dropdownRes.message) {
+          if(typeof populateDropdownsB2b === 'function') populateDropdownsB2b(dropdownRes);
+          if(typeof populateDropdownsInv === 'function') populateDropdownsInv(dropdownRes);
+          if(typeof populateDropdownsRto === 'function') populateDropdownsRto(dropdownRes);
+        }
+
+        const productsRes = await callBackend("getProductMasterData");
+        if(Array.isArray(productsRes)) {
+          globalProductMasterList = productsRes;
+          if(typeof syncProductMasterLocalState === 'function') syncProductMasterLocalState(productsRes);
+        }
+        fetchLiveDashboardDataRecords();
+        updateCorrectionLabels();
+        adjustReprintLabelsText();
+      }, 500);
+    };
+
+    function formatCleanTimeStr(timeVal) {
+      if (!timeVal) return "--:--";
+      var str = timeVal.toString().trim();
+      if (str.includes("GMT") || str.includes("1899")) {
+        var match = str.match(/(\d{2}):(\d{2}):(\d{2})/);
+        if (match) return match[1] + ":" + match[2];
+      }
+      return str.split("GMT")[0].trim();
+    }
+
+    async function fetchLiveDashboardDataRecords() {
+      masterData = []; currentlyFilteredData = [];
+      document.getElementById('dataTableBody').innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">Loading ${workflowDept} data rows...</td></tr>`;
+      document.getElementById('dashTabTitle').innerText = (workflowDept === "B2B Dispatch") ? "Tab1" : (workflowDept === "Inventory Logging" ? "Tab4" : "Tab5/Tab6");
+      document.getElementById('thSeriesId').innerText = (workflowDept === "B2B Dispatch") ? "Gatepass ID" : "Gate Entry No";
+
+      const response = await callBackend("getDashboardDataByWorkspace", { workspaceName: workflowDept });
+      if (Array.isArray(response)) {
+        masterData = response.map(function(row) { row.time = formatCleanTimeStr(row.time); return row; });
+        applyFilters();
+      } else {
+        document.getElementById('dataTableBody').innerHTML = `<tr><td colspan="11" class="text-center p-4 text-red-500 font-bold">Data empty or connection dropped.</td></tr>`;
+      }
+    }
+
+    function toggleSubMenu(menuId, forceOpen = false) {
+      var menu = document.getElementById(menuId);
+      var arrow = document.getElementById('arrow-' + menuId);
+      if (menu.style.maxHeight && menu.style.maxHeight !== "0px" && !forceOpen) {
+        menu.style.maxHeight = "0px"; menu.style.opacity = "0";
+        if(arrow) arrow.style.transform = "rotate(0deg)";
+      } else {
+        menu.style.maxHeight = "250px"; menu.style.opacity = "1";
+        if(arrow) arrow.style.transform = "rotate(180deg)";
+      }
+    }
+
+    function activateModuleWorkflow(deptName, viewTarget) {
+      workflowDept = deptName; currentViewTarget = viewTarget;
+      localStorage.setItem('active_workflow_dept', deptName);
+      localStorage.setItem('current_view_target', viewTarget);
+      document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
+      evaluateActiveWorkflowViewState(); switchView(viewTarget); fetchLiveDashboardDataRecords();
+    }
+
+    function switchView(viewKey) {
+      currentViewTarget = viewKey; localStorage.setItem('current_view_target', viewKey);
+      document.getElementById('printArea').classList.add('hidden');
+      document.getElementById('statusMsg').classList.add('hidden'); 
+      document.querySelectorAll('.app-view').forEach(function(el) { el.classList.add('hidden'); });
+      document.querySelectorAll('#sidebarMenu button').forEach(function(btn) { btn.classList.remove('text-amber-400', 'font-bold'); });
+
+      if(viewKey === 'entry-view') {
+        document.getElementById('view-entry').classList.remove('hidden');
+        if(workflowDept === "B2B Dispatch") document.getElementById('sub-b2b-entry').classList.add('text-amber-400', 'font-bold');
+        if(workflowDept === "Inventory Logging") document.getElementById('sub-inv-entry').classList.add('text-amber-400', 'font-bold');
+        if(workflowDept === "RTO (IN)") document.getElementById('sub-rto-entry').classList.add('text-amber-400', 'font-bold');
+      } else if (viewKey === 'product-master-view') {
+        document.getElementById('view-product-master').classList.remove('hidden');
+        document.getElementById('sub-inv-pm').classList.add('text-amber-400', 'font-bold');
+        if(typeof syncProductMasterLocalState === 'function') syncProductMasterLocalState(globalProductMasterList);
+      } else if (viewKey === 'reprint-view') {
+        document.getElementById('view-reprint').classList.remove('hidden');
+        document.getElementById('sub-b2b-reprint').classList.add('text-amber-400', 'font-bold');
+        adjustReprintLabelsText();
+      } else if (viewKey === 'correction-view') {
+        document.getElementById('view-correction').classList.remove('hidden');
+        document.getElementById('sub-b2b-correction').classList.add('text-amber-400', 'font-bold');
+      } else if (viewKey === 'dashboard-view') {
+        document.getElementById('view-dashboard').classList.remove('hidden');
+        if(workflowDept === "B2B Dispatch") document.getElementById('sub-b2b-dashboard').classList.add('text-amber-400', 'font-bold');
+        if(workflowDept === "Inventory Logging") document.getElementById('sub-inv-dashboard').classList.add('text-amber-400', 'font-bold');
+        if(workflowDept === "RTO (IN)") document.getElementById('sub-rto-dashboard').classList.add('text-amber-400', 'font-bold');
+      }
+    }
+
+    function adjustReprintLabelsText() {
+      var source = document.getElementById('reprintSourceDept').value;
+      document.getElementById('reprintHeaderTitle').innerText = (source === "B2B Dispatch") ? "Reprint Historical Gatepass Slip" : "Reprint Historical Gate Entry Slip";
+      document.getElementById('reprintSeriesInputLabel').innerText = (source === "B2B Dispatch") ? "Enter Unique Gatepass ID *" : "Enter Unique Gate Entry No *";
+    }
+
+    async function runDatabaseCorrectionRoutine() {
+      var type = document.getElementById('corrType').value;
+      var searchKey = document.getElementById('corrSearchKey').value.trim();
+      var newValue = document.getElementById('corrNewValue').value.trim();
+      if(!searchKey || !newValue || !confirm("Execute change across database rows?")) return;
+      
+      var sMsg = document.getElementById('statusMsg');
+      sMsg.innerText = "Executing correction processing..."; sMsg.className = "mb-4 p-3 rounded bg-amber-100 text-amber-800 font-bold text-center text-sm shadow";
+      sMsg.classList.remove('hidden');
+      
+      const res = await callBackend("executeOperationalCorrection", { type, searchKey, replacementValue: newValue });
+      if(res.success) {
+        sMsg.innerText = res.message; sMsg.className = "mb-4 p-3 rounded bg-green-100 text-green-800 font-bold text-center text-sm shadow";
+        document.getElementById('corrSearchKey').value = ""; document.getElementById('corrNewValue').value = "";
+        fetchLiveDashboardDataRecords();
+      } else {
+        sMsg.innerText = "Error: " + res.message; sMsg.className = "mb-4 p-3 rounded bg-red-100 text-red-800 font-bold text-center text-sm shadow";
+      }
+    }
+
+    function updateCorrectionLabels() {
+      var type = document.getElementById('corrType').value;
+      document.getElementById('searchKeyLabel').innerText = (type === "inv_against_lr") ? "Enter Known LR Number *" : "Enter Known Invoice Number *";
+      document.getElementById('newValueLabel').innerText = (type === "inv_against_lr") ? "Enter New Corrected Invoice Number *" : "Enter New Corrected LR Number *";
+    }
+
+    function renderTable(data) {
+      var body = document.getElementById('dataTableBody'); body.innerHTML = "";
+      document.getElementById('rowCountLabel').innerText = data.length;
+      if(data.length === 0) { body.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No records matched filters.</td></tr>`; return; }
+      
+      data.forEach(function(row){
+        var tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors";
+        tr.innerHTML = `
+          <td class="px-3 py-2.5 font-bold font-mono text-slate-900">${row.seriesNo || 'N/A'}</td>
+          <td class="px-3 py-2.5 font-medium text-gray-500">${row.date || ""} <span class="text-[10px] text-slate-400">@ ${row.time || "--:--"}</span></td>
+          <td class="px-3 py-2.5 font-bold text-amber-600">${row.dept || 'N/A'}</td>
+          <td class="px-3 py-2.5">${row.transporter || 'N/A'}</td>
+          <td class="px-3 py-2.5 uppercase font-mono font-bold text-slate-700">${row.vehicleNo || 'N/A'}</td>
+          <td class="px-3 py-2.5 text-gray-500">${row.driverName || 'N/A'} <br><span class="text-[10px] text-slate-400">${row.driverMobile || ''}</span></td>
+          <td class="px-3 py-2.5 font-mono font-medium">${row.invoice || 'N/A'}</td>
+          <td class="px-3 py-2.5 text-center font-bold text-slate-900">${row.boxes || '0'}</td>
+          <td class="px-3 py-2.5 font-mono max-w-[120px] truncate" title="${row.remark || ''}">${row.remark || row.lr || 'N/A'}</td>
+          <td class="px-3 py-2.5 text-center font-semibold ${row.status === 'Pending' ? 'text-red-500 bg-red-50' : (row.status ? 'text-green-600 bg-green-50' : '')}">${row.pallets || row.status || '0'}</td>
+          <td class="px-3 py-2.5 text-gray-500 font-medium">${row.incharge || 'N/A'}</td>`;
+        body.appendChild(tr);
+      });
+    }
+
+    function applyFilters() {
+      var fromDate = document.getElementById('filterFromDate').value;
+      var toDate = document.getElementById('filterToDate').value;
+      var sF = document.getElementById('searchSeries').value.toLowerCase().trim();
+      var deF = document.getElementById('searchDept').value.toLowerCase().trim();
+      var iF = document.getElementById('searchInvoice').value.toLowerCase().trim();
+      var lF = document.getElementById('searchLr').value.toLowerCase().trim();
+      var tF = document.getElementById('searchTransporter').value.toLowerCase().trim();
+
+      currentlyFilteredData = masterData.filter(function(row) {
+        if (fromDate && row.date && row.date < fromDate) return false;
+        if (toDate && row.date && row.date > toDate) return false;
+        return (!sF || (row.seriesNo && row.seriesNo.toString().toLowerCase().includes(sF))) &&
+               (!deF || (row.dept && row.dept.toLowerCase().includes(deF))) &&
+               (!iF || (row.invoice && row.invoice.toString().toLowerCase().includes(iF))) &&
+               (!lF || (row.lr && row.lr.toLowerCase().includes(lF)) || (row.status && row.status.toLowerCase().includes(lF))) &&
+               (!tF || (row.transporter && row.transporter.toLowerCase().includes(tF)));
+      });
+      renderTable(currentlyFilteredData);
+    }
+
+    function exportFilteredDataToExcel() {
+      if(currentlyFilteredData.length === 0) return;
+      var csvContent = "\uFEFFID Reference,Date,Time,Context,Transporter,Vehicle No,Driver Name,Driver Mobile,Invoice/Reference,Qty/Boxes,LR/Remark,Pallets/Status\r\n";
+      currentlyFilteredData.forEach(function(row) {
+        var lineItems = ['"' + (row.seriesNo || '') + '"', '"' + (row.date || '') + '"', '"' + (row.time || '') + '"', '"' + (row.dept || '') + '"', '"' + (row.transporter || '') + '"', '"' + (row.vehicleNo || '') + '"', '"' + (row.driverName || '') + '"', '"' + (row.driverMobile || '') + '"', '"\t' + (row.invoice || '') + '"', '"' + (row.boxes || '0') + '"', '"' + (row.remark || row.lr || '') + '"', '"' + (row.pallets || row.status || '0') + '"'];
+        csvContent += lineItems.join(",") + "\r\n";
+      });
+      var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      var link = document.createElement("a"); link.setAttribute("href", URL.createObjectURL(blob));
+      link.setAttribute("download", "QuickShift_Report_" + new Date().toISOString().split('T')[0] + ".csv");
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebarMenu').classList.toggle('-translate-x-full');
+      document.getElementById('menuBackdrop').classList.toggle('hidden');
+    }
+
+    async function executeReprintQuery() {
+      var searchInput = document.getElementById('searchSeriesId').value.trim();
+      var reprintSource = document.getElementById('reprintSourceDept').value;
+      var sBtn = document.getElementById('searchBtn');
+      var statusContainer = document.getElementById('reprintStatusMsg');
+      if(!searchInput) return;
+      sBtn.disabled = true; statusContainer.innerText = "Querying universal archives...";
+      const res = await callBackend("fetchUniversalGatepassRecord", { seriesId: searchInput, currentWorkspace: reprintSource });
+      sBtn.disabled = false; sBtn.innerText = "Search";
+      if(res.success && res.record) {
+        res.record.time = formatCleanTimeStr(res.record.time); renderPrintLayout(res.record, res.record.seriesNo);
+        statusContainer.innerHTML = `<div class="p-2 bg-green-50 text-green-800 text-xs font-bold">Successfully loaded ${res.record.seriesNo}!</div>`;
+      } else {
+        statusContainer.innerHTML = `<div class="p-2 bg-red-50 text-red-800 text-xs font-bold">Error: ${res.message}</div>`;
+      }
+    }
+
+    function renderPrintLayout(data, seriesId) {
+      document.getElementById('pdfSeries').innerText = seriesId; document.getElementById('pdfDate').innerText = data.date;
+      document.getElementById('pdfTime').innerText = formatCleanTimeStr(data.time); document.getElementById('pdfDept').innerText = data.department;
+      document.getElementById('pdfTransporter').innerText = data.transporter; document.getElementById('pdfVehicle').innerText = data.vehicleNo;
+      document.getElementById('pdfDriver').innerText = data.driverName || "N/A"; document.getElementById('pdfMobile').innerText = data.driverMobile || "N/A";
+      document.getElementById('pdfIncharge').innerText = data.incharge || "Warehouse Team";
+      
+      var pdfTitle = document.getElementById('pdfTitle'), pdfSeriesLabel = document.getElementById('pdfSeriesLabel'), pdfInchargeLabel = document.getElementById('pdfInchargeLabel');
+      var thEl = document.getElementById('pdfTableHeader'), pBody = document.getElementById('pdfTableBody');
+      var palletCont = document.getElementById('pdfPalletContainer'), invMetaCont = document.getElementById('pdfInvMetaContainer');
+      
+      if (data.department === "Inventory Inward") {
+        pdfTitle.innerText = "QUICKSHIFT - INVENTORY INWARD GATE ENTRY"; pdfSeriesLabel.innerText = "Gate Entry No:"; pdfInchargeLabel.innerText = "Inward Incharge:";
+        if(palletCont) palletCont.classList.add('hidden');
+        if(invMetaCont) {
+           invMetaCont.classList.remove('hidden');
+           document.getElementById('pdfInvPo').innerText = data.poInvoiceNo || (data.invoices && data.invoices[0] ? data.invoices[0].invoiceNum : "N/A");
+           document.getElementById('pdfInvLr').innerText = data.lrNo || "As Log Table";
+        }
+        thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-semibold text-[11px]"><th class="p-2 text-center border border-black">Sr No.</th><th class="p-2 border border-black">Material Item Name Description</th><th class="p-2 border border-black font-mono">Barcode ID</th><th class="p-2 border border-black font-mono">SKU Code</th><th class="p-2 text-center border border-black">Qty Units</th><th class="p-2 text-center border border-black">Box Count</th></tr>`;
+        pBody.innerHTML = ""; var totalQtySum = 0, totalBoxesSum = 0;
+        if (data.invoices) {
+          data.invoices.forEach(function(item, idx){
+            var itemQty = parseInt(item.physicalQuantity || item.qty || 0, 10), itemBoxes = parseInt(item.boxCount || item.boxes || 0, 10);
+            totalQtySum += itemQty; totalBoxesSum += itemBoxes;
+            pBody.innerHTML += `<tr><td class="p-2 text-center border border-black">${idx + 1}</td><td class="p-2 border border-black font-medium">${item.itemName || 'N/A'}</td><td class="p-2 border border-black font-mono">${item.barcode || '—'}</td><td class="p-2 border border-black font-mono font-bold">${item.skuCode || '—'}</td><td class="p-2 text-center border border-black font-bold">${itemQty}</td><td class="p-2 text-center border border-black font-bold">${itemBoxes}</td></tr>`;
+          });
+        }
+        pBody.innerHTML += `<tr class="bg-gray-50 font-bold border-t-2 border-black text-xs"><td colspan="4" class="p-2 text-right border border-black font-black">Aggregate Totals:</td><td class="p-2 text-center border border-black underline">${totalQtySum}</td><td class="p-2 text-center border border-black underline">${totalBoxesSum}</td></tr>`;
+      } else {
+        if(palletCont) { palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = data.palletCount || "0"; }
+        if(invMetaCont) invMetaCont.classList.add('hidden');
+        pdfInchargeLabel.innerText = (data.department.includes("Return")) ? "Return Incharge:" : "Incharge Assigned:";
+        pdfTitle.innerText = "QUICKSHIFT - " + data.department.toUpperCase() + (data.department.includes("Return") ? " GATE ENTRY" : " GATEPASS");
+        pdfSeriesLabel.innerText = (data.department.includes("Return")) ? "Gate Entry No:" : "Series Token ID:";
+        
+        if (data.department === "B2C Return") {
+          thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-semibold text-[11px]"><th class="p-2 text-center border border-black">Sr No.</th><th class="p-2 border border-black">Invoice</th><th class="p-2 border border-black font-mono">AWB No.</th><th class="p-2 border border-black">Remark</th></tr>`;
+        } else {
+          thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-semibold text-[11px]"><th class="p-2 text-center border border-black">Sr No.</th><th class="p-2 border border-black">Invoice</th><th class="p-2 text-center border border-black">Box Count</th><th class="p-2 border border-black font-mono">LR / AWB</th><th class="p-2 border border-black">Remark</th></tr>`;
+        }
+        pBody.innerHTML = ""; var aggregateBoxesSum = 0;
+        if (data.invoices) {
+          data.invoices.forEach(function(item, idx){
+            if (data.department === "B2C Return") {
+              aggregateBoxesSum += 1;
+              pBody.innerHTML += `<tr><td class="p-2 text-center border border-black">${idx + 1}</td><td class="p-2 border border-black font-mono">${item.invoiceNum}</td><td class="p-2 border border-black font-mono">${item.invoiceNum}</td><td class="p-2 border border-black text-xs">${idx === 0 ? (data.globalRemark || "No Damage") : ""}</td></tr>`;
+            } else {
+              var boxValue = parseInt(item.boxCount, 10) || 0; aggregateBoxesSum += boxValue;
+              pBody.innerHTML += `<tr><td class="p-2 text-center border border-black">${idx + 1}</td><td class="p-2 border border-black font-mono">${item.invoiceNum}</td><td class="p-2 text-center border border-black font-bold">${boxValue}</td><td class="p-2 border border-black font-mono">${item.lrNo ? item.lrNo.split(" (Remark:")[0] : 'N/A'}</td><td class="p-2 border border-black text-xs">${data.globalRemark || ""}</td></tr>`;
+            }
+          });
+        }
+        pBody.innerHTML += `<tr class="bg-gray-50 font-bold border-t-2 border-black text-xs"><td colspan="2" class="p-2 text-right border border-black font-black">TOTAL PACK COUNT:</td><td class="p-2 text-center border border-black underline">${aggregateBoxesSum}</td><td colspan="${data.department === "B2C Return" ? 1 : 2}" class="p-2 border border-black bg-gray-50"></td></tr>`;
+      }
+      document.getElementById('printArea').classList.remove('hidden');
+      window.scrollTo(0, document.getElementById('printArea').offsetTop);
+    }
+
+    function evaluateActiveWorkflowViewState() {
+      var b2b = document.getElementById('b2bDispatchFormBlock'), inv = document.getElementById('inventoryFormBlock'), rto = document.getElementById('rtoFormBlock');
+      if(b2b) b2b.classList.add('hidden'); if(inv) inv.classList.add('hidden'); if(rto) rto.classList.add('hidden');
+      if (workflowDept === "B2B Dispatch" && b2b) { b2b.classList.remove('hidden'); if(document.getElementById('deptDisplayField')) document.getElementById('deptDisplayField').value = "B2B Dispatch"; }
+      else if (workflowDept === "Inventory Logging" && inv) { inv.classList.remove('hidden'); if(typeof initInventorySearchableDropdownEngine === 'function') initInventorySearchableDropdownEngine(); }
+      else if (workflowDept === "RTO (IN)" && rto) { rto.classList.remove('hidden'); if(typeof initRtoWorkflowSettings === 'function') initRtoWorkflowSettings(); }
+    }
+
+    function triggerLogout() { localStorage.clear(); window.location.href = "index.html"; }
+  </script>
+</body>
+</html>
