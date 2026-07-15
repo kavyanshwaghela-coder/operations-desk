@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickShift B2B & RTO Operations Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Native Camera Scanner Engine Library Core Dependency Hook -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     .brand-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
     .brand-bg { background-color: #1e293b; }
     .dropdown-search-match { background-color: #fef3c7; font-weight: bold; }
     .menu-transition { transition: max-height 0.3s ease-out, opacity 0.2s ease-out; }
     @media print {
-      body > nav, #sidebarMenu, form, #view-reprint, #view-dashboard, #statusMsg, .no-print, button, .menu-trigger { display: none !important; }
+      body > nav, #sidebarMenu, form, #view-reprint, #view-dashboard, #statusMsg, .no-print, button, .menu-trigger, #qr-reader-container { display: none !important; }
       body, html { background-color: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; }
       #printArea { display: block !important; border: none !important; width: 100% !important; max-width: 100% !important; position: absolute; left: 0; top: 0; padding: 10px !important; }
       #printArea table { width: 100% !important; border-collapse: collapse !important; display: table !important; margin-top: 1.5rem !important; }
@@ -37,19 +39,14 @@
       </div>
       <h2 class="text-xl font-bold text-center text-gray-800">Operational Portal</h2>
       <p class="text-xs text-center text-gray-400 mb-6">B2B Workflow & Gatepass Access</p>
-      
       <div id="statusMessage" class="text-xs mb-4 text-center hidden p-2.5 rounded-lg font-semibold"></div>
-      
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="mb-4">
           <label class="block text-gray-700 text-xs font-bold mb-1">Email ID *</label>
           <input type="email" id="email" required placeholder="user@quickshift.com" class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-700">
         </div>
         <div class="mb-3">
-          <div class="flex justify-between items-center mb-1">
-            <label class="block text-gray-700 text-xs font-bold">Password *</label>
-            <button type="button" onclick="handleOtpRequestFlow('forgot')" class="text-amber-600 hover:underline text-[11px] font-semibold">Forgot Password?</button>
-          </div>
+          <div class="flex justify-between items-center mb-1"><label class="block text-gray-700 text-xs font-bold">Password *</label><button type="button" onclick="handleOtpRequestFlow('forgot')" class="text-amber-600 hover:underline text-[11px] font-semibold">Forgot Password?</button></div>
           <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-700">
         </div>
         <div class="mb-4 flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
@@ -58,8 +55,6 @@
         </div>
         <button type="submit" id="loginBtn" class="w-full brand-bg text-white py-2.5 rounded-md font-bold hover:opacity-90 transition text-sm shadow-sm tracking-wide">Access Workspace</button>
       </form>
-
-      <!-- Verification Blocks -->
       <div id="otpVerificationBlock" class="hidden mt-5 pt-4 border-t-2 border-dashed border-slate-200 bg-slate-50 p-4 rounded-xl">
         <h3 id="otpBlockTitle" class="text-xs font-bold uppercase text-slate-700 tracking-wider mb-2">Secure Validation Required</h3>
         <input type="text" id="otpTokenInput" maxlength="6" placeholder="------" class="w-full text-center px-4 py-2 border rounded font-mono text-xl font-black tracking-[0.5em] focus:outline-none mb-3">
@@ -123,15 +118,22 @@
     <div id="menuBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 hidden z-30"></div>
 
     <main class="flex-grow p-3 md:p-6 max-w-5xl w-full mx-auto">
+      <!-- FIXED INTERACTIVE BARCODE MOBILE SCANNER OVERLAY ANCHOR -->
+      <div id="qr-reader-container" class="hidden mb-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm max-w-sm mx-auto text-center">
+        <div class="flex justify-between items-center border-b pb-2 mb-2">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">📸 Live Camera Scan Engine</span>
+          <button onclick="closeGlobalCameraScanner()" class="text-red-500 font-bold text-sm">Cancel ✕</button>
+        </div>
+        <div id="qr-reader" class="w-full overflow-hidden rounded-lg bg-slate-50"></div>
+      </div>
+
       <div id="statusMsg" class="hidden mb-4 p-3 rounded font-bold text-center text-sm shadow-xs"></div>
       
-      <!-- CONT-VIEW BLOCKS MOUNT -->
       <div id="view-entry" class="app-view bg-white rounded-lg shadow-md p-4 md:p-6 border border-slate-100">
         <div id="dynamicFormContainer"></div>
       </div>
       <div id="view-product-master" class="app-view bg-white rounded-lg shadow-md p-4 md:p-6 border hidden"></div>
 
-      <!-- SEARCH REPRINT LAYOUT LAYER -->
       <div id="view-reprint" class="app-view bg-white rounded-lg shadow-md p-4 md:p-6 border hidden">
         <h2 id="reprintHeaderTitle" class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Reprint Historical Gatepass Slip</h2>
         <div class="bg-slate-50 p-4 rounded-lg border mb-6 max-w-md space-y-3">
@@ -145,7 +147,6 @@
         <div id="reprintStatusMsg" class="text-sm font-semibold text-gray-500 italic">Select source and enter tracking key.</div>
       </div>
 
-      <!-- LEDGER REPAIR ENGINE CORRECTIONS PANEL LAYER -->
       <div id="view-correction" class="app-view bg-white rounded-lg shadow-md p-4 md:p-6 border hidden">
         <h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Invoice / LR Correction Engine</h2>
         <div class="bg-slate-50 p-4 rounded-lg border max-w-xl space-y-4">
@@ -158,7 +159,6 @@
         </div>
       </div>
 
-      <!-- OPERATIONS REALTIME REPORT GRID ARCHIVE VIEW -->
       <div id="view-dashboard" class="app-view bg-white rounded-lg shadow-md p-4 md:p-6 border hidden">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-4 mb-4 gap-3"><h2 class="text-xl font-bold text-slate-700">Central Ledger Operations Archive (<span id="dashTabTitle">Tab1</span>)</h2><button onclick="exportFilteredDataToExcel()" class="bg-emerald-600 text-white font-bold text-xs py-2 px-4 rounded shadow-sm tracking-wider">📥 Export Filtered Excel</button></div>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2.5 mb-6 bg-slate-100 p-3 rounded-lg border">
@@ -170,6 +170,10 @@
           <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">LR Tracking</label><input type="text" id="searchLr" placeholder="LR Tracking" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
           <div><label class="block text-[10px] uppercase font-bold text-gray-500 mb-1">Transporter</label><input type="text" id="searchTransporter" placeholder="Transporter" onkeyup="applyFilters()" class="w-full p-1.5 text-xs border rounded bg-white"></div>
         </div>
+        <div class="mt-4 flex justify-between items-center text-xs bg-slate-100 p-3 border rounded-lg font-medium text-slate-700 mb-2">
+          <div>Active Filter Status Matrix:</div>
+          <div class="brand-bg text-white font-mono px-3 py-1 rounded font-bold text-xs"><span id="rowCountLabel">0</span> Lines Loaded</div>
+        </div>
         <div class="overflow-x-auto border rounded-lg"><table class="min-w-full divide-y text-xs text-left"><thead class="brand-bg text-white uppercase tracking-wider text-[10px]"><tr><th id="thSeriesId" class="px-3 py-3">Series ID</th><th class="px-3 py-3">Date / Time</th><th class="px-3 py-3">Department</th><th class="px-3 py-3">Transporter</th><th class="px-3 py-3">Vehicle No.</th><th class="px-3 py-3">Driver Profile</th><th class="px-3 py-3">Invoice</th><th class="px-3 py-3 text-center">Qty / Boxes</th><th class="px-3 py-3">LR / Remark</th><th class="px-3 py-3 text-center">Pallets / Status</th><th class="px-3 py-3">Incharge</th></tr></thead><tbody id="dataTableBody" class="divide-y bg-white text-gray-600"></tbody></table></div>
       </div>
     </main>
@@ -180,16 +184,16 @@
     <div class="flex items-center justify-center space-x-3 border-b-2 border-black pb-4 mb-4"><svg class="w-9 h-9" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="#000000"/><path d="M52 22L32 54H48L44 78L68 42H50L52 22Z" fill="#ffffff"/></svg><div><h1 class="text-2xl font-black uppercase tracking-tight" id="pdfTitle">QUICKSHIFT GATEPASS</h1></div></div>
     <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs mb-4 pb-2 border-b">
       <div><strong id="pdfSeriesLabel">ID Segment:</strong> <span id="pdfSeries" class="font-mono underline font-bold"></span></div>
-      <div><strong>Date Timestamp:</strong> <span id="pdfDate"></span> @ <span id="pdfTime" class="font-mono"></span></div>
-      <div><strong>Module Context:</strong> <span id="pdfDept"></span></div><div><strong>Transporter Profile:</strong> <span id="pdfTransporter"></span></div>
-      <div><strong>Vehicle Number:</strong> <span id="pdfVehicle" class="uppercase font-bold"></span></div><div><strong>Driver Name:</strong> <span id="pdfDriver"></span> (<span id="pdfMobile"></span>)</div>
-      <div id="pdfPalletContainer"><strong>Pallet Registry Sum:</strong> <span id="pdfPallets"></span></div><div><strong id="pdfInchargeLabel">Authorized Incharge:</strong> <span id="pdfIncharge"></span></div>
-      <div id="pdfInvMetaContainer" class="col-span-2 hidden grid grid-cols-2 gap-2 mt-1 bg-slate-50 p-1.5 border"><div><strong>PO Tracker Identifier:</strong> <span id="pdfInvPo" class="font-mono"></span></div><div><strong>LR Inward Verification:</strong> <span id="pdfInvLr" class="font-mono"></span></div></div>
+      <div><strong>Date & Time Slot:</strong> <span id="pdfDate"></span> @ <span id="pdfTime" class="font-mono"></span></div>
+      <div><strong>Module Context:</strong> <span id="pdfDept"></span></div><div><strong>Transporter:</strong> <span id="pdfTransporter"></span></div>
+      <div><strong>Vehicle Registration No:</strong> <span id="pdfVehicle" class="uppercase font-bold"></span></div><div><strong>Driver Profile:</strong> <span id="pdfDriver"></span></div>
+      <div id="pdfPalletContainer"><strong>Pallets:</strong> <span id="pdfPallets"></span></div><div><strong id="pdfInchargeLabel">Authorized Incharge:</strong> <span id="pdfIncharge"></span></div>
+      <div id="pdfInvMetaContainer" class="col-span-2 hidden grid grid-cols-2 gap-2 mt-1 bg-slate-50 p-1.5 border border-gray-300"><div><strong>PO / Invoice Identifier:</strong> <span id="pdfInvPo" class="font-mono font-semibold"></span></div><div><strong>LR Inward Token ID:</strong> <span id="pdfInvLr" class="font-mono font-semibold"></span></div></div>
     </div>
     <table class="w-full text-xs border-collapse border border-black"><thead id="pdfTableHeader"></thead><tbody id="pdfTableBody"></tbody></table>
     <div class="mt-16 flex justify-between items-center text-xs px-4">
-      <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><span class="font-bold text-gray-700">Driver Signature</span></div>
-      <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><span class="font-bold text-gray-700">Authorized Signature</span></div>
+      <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><span class="font-bold text-gray-700">Driver / Receiver Signature</span></div>
+      <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><span class="font-bold text-gray-700">Authorized Operations Signature</span></div>
     </div>
     <button onclick="window.print()" class="mt-8 bg-slate-800 text-white text-xs px-5 py-2.5 rounded no-print font-bold block mx-auto">Trigger Device Print Command</button>
   </div>
