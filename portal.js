@@ -656,4 +656,20 @@ function updateCorrectionLabels() {
   else { keyLbl.innerText = "Enter Known Invoice Number *"; valLbl.innerText = "Enter New Corrected LR Number *"; }
 }
 
-window.addEventListener('pagehide', () => { saveToLocalStorage(); saveInventoryToCache(); saveRtoToCache(); });
+// Check session authentication state on boot
+window.addEventListener('DOMContentLoaded', function() {
+  var savedEmail = localStorage.getItem('logged_session_email');
+  if(savedEmail && savedEmail.includes('@')) {
+    currentUserEmail = savedEmail;
+    var uDisp = document.getElementById('userDisplay'); 
+    if(uDisp) uDisp.innerText = currentUserEmail;
+    
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-portal').classList.remove('hidden');
+    
+    loadWorkflowHtmlFiles();
+  } else {
+    document.getElementById('view-login').classList.remove('hidden');
+    document.getElementById('view-portal').classList.add('hidden');
+  }
+});
