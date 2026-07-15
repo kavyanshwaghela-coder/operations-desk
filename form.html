@@ -243,15 +243,28 @@
     document.getElementById('userDisplay').innerText = currentUserEmail;
     document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
 
-    // Standard URL-encoded FormData formatting connection API to resolve CORS restrictions
+    // Uses URLSearchParams to load dropdown configurations and dashboard ledger data seamlessly
     async function callBackend(actionName, payloadData = {}) {
       try {
-        var formData = new FormData();
-        formData.append("action", actionName);
-        formData.append("payload", JSON.stringify(payloadData));
-        formData.append("userEmail", currentUserEmail);
+        const details = {
+          "action": actionName,
+          "payload": JSON.stringify(payloadData),
+          "userEmail": currentUserEmail
+        };
 
-        const response = await fetch(API_URL, { method: "POST", body: formData });
+        var formBody = [];
+        for (var property in details) {
+          var encodedKey = encodeURIComponent(property);
+          var encodedValue = encodeURIComponent(details[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body: formBody
+        });
         return await response.json();
       } catch (err) {
         return { success: false, message: "API Matrix Query Error: " + err.toString() };
