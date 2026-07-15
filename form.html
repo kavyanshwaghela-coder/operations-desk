@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickShift Master Operations Desk Workspace</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Mobile-Ready Barcode Scanning Engine Library CDN -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     .brand-bg { background-color: #1e293b; }
     .menu-transition { transition: max-height 0.3s ease-out, opacity 0.2s ease-out; }
@@ -84,7 +86,6 @@
     <!-- Active Form Display Blocks Framework -->
     <div id="view-entry" class="app-view bg-white rounded-lg shadow p-4 md:p-6 border border-slate-100">
       <div id="dynamicFormContainer">
-         <!-- Dynamic HTML Form blocks will be structural triggers injected here dynamically -->
          <div id="b2bFormPlaceholder"></div>
          <div id="inventoryFormPlaceholder"></div>
          <div id="rtoFormPlaceholder"></div>
@@ -218,8 +219,18 @@
     <button onclick="window.print()" class="mt-8 bg-slate-800 text-white text-xs px-5 py-2.5 rounded no-print block mx-auto font-bold shadow">Trigger Device Print Command</button>
   </div>
 
+  <!-- DYNAMIC BARCODE CAMERA SCANNER POPUP MODAL OVERLAY -->
+  <div id="scannerModalOverlay" class="fixed inset-0 bg-black/70 z-50 flex flex-col items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl overflow-hidden max-w-sm w-full p-4 border-t-4 border-amber-500 text-center relative">
+      <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-3">Align LR Barcode / QR Code</h3>
+      <div id="cameraScannerPreviewZone" class="w-full bg-slate-900 rounded-lg overflow-hidden border mx-auto aspect-square"></div>
+      <p class="text-[11px] text-slate-400 mt-2">Hold the document steady in good lighting until it captures automatically.</p>
+      <button type="button" onclick="closeCameraScanner()" class="w-full mt-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded text-xs transition">Close Scanner Camera</button>
+    </div>
+  </div>
+
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyP6hzAZZdZR-3-i3mlaoiBZ4GaR_fUDoqeQeT8RrZGHa1L6UssYzUBLANH4K8Y_ixCCA/exec"; // <-- PASTE YOUR APPS SCRIPT URL HERE
+    const API_URL = "YOUR_GOOGLE_WEB_APP_URL"; // <-- PASTE YOUR APPS SCRIPT URL HERE
     var currentUserEmail = localStorage.getItem('logged_session_email') || "System Admin";
     var masterData = [], currentlyFilteredData = [], globalProductMasterList = [];
     var workflowDept = localStorage.getItem('active_workflow_dept') || "B2B Dispatch";
@@ -231,32 +242,27 @@
 
     async function callBackend(actionName, payloadData = {}) {
       try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          mode: "cors",
-          headers: { 
-            "Content-Type": "text/plain;charset=utf-8" 
-          },
-          body: JSON.stringify({ action: actionName, payload: payloadData, userEmail: currentUserEmail })
-        });
+        var formData = new FormData();
+        formData.append("action", actionName);
+        formData.append("payload", JSON.stringify(payloadData));
+        formData.append("userEmail", currentUserEmail);
+
+        const response = await fetch(API_URL, { method: "POST", body: formData });
         return await response.json();
       } catch (err) {
         return { success: false, message: "API Matrix Query Error: " + err.toString() };
       }
     }
 
-    // Dynamic Script Injection Function to load separate workflow layout files cleanly
     function injectModuleFileScript(srcFile) {
       const script = document.createElement('script');
-      script.src = srcFile;
-      script.async = false;
+      script.src = srcFile; script.async = false;
       document.head.appendChild(script);
     }
 
     window.onload = async function() {
       if(!localStorage.getItem('logged_session_email')) { window.location.href = "index.html"; return; }
       
-      // Inject components dynamically from individual logic script files
       injectModuleFileScript('b2b-dispatch.js');
       injectModuleFileScript('product-master.js');
       injectModuleFileScript('inventory-inward.js');
@@ -267,8 +273,7 @@
         else if(workflowDept === "Inventory Logging") toggleSubMenu('menu-inventory', true);
         else if(workflowDept === "RTO (IN)") toggleSubMenu('menu-rto', true);
 
-        evaluateActiveWorkflowViewState();
-        switchView(currentViewTarget);
+        evaluateActiveWorkflowViewState(); switchView(currentViewTarget);
 
         const dropdownRes = await callBackend("getDropdownData");
         if(dropdownRes && !dropdownRes.message) {
@@ -282,9 +287,7 @@
           globalProductMasterList = productsRes;
           if(typeof syncProductMasterLocalState === 'function') syncProductMasterLocalState(productsRes);
         }
-        fetchLiveDashboardDataRecords();
-        updateCorrectionLabels();
-        adjustReprintLabelsText();
+        fetchLiveDashboardDataRecords(); updateCorrectionLabels(); adjustReprintLabelsText();
       }, 500);
     };
 
@@ -543,6 +546,55 @@
     }
 
     function triggerLogout() { localStorage.clear(); window.location.href = "index.html"; }
+  </script>
+
+  <!-- DYNAMIC BARCODE CAMERA SCANNER POPUP MODAL OVERLAY -->
+  <div id="scannerModalOverlay" class="fixed inset-0 bg-black/70 z-50 flex flex-col items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl overflow-hidden max-w-sm w-full p-4 border-t-4 border-amber-500 text-center relative">
+      <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-3">Align LR Barcode / QR Code</h3>
+      <div id="cameraScannerPreviewZone" class="w-full bg-slate-900 rounded-lg overflow-hidden border mx-auto aspect-square"></div>
+      <p class="text-[11px] text-slate-400 mt-2">Hold the document steady in good lighting until it captures automatically.</p>
+      <button type="button" onclick="closeCameraScanner()" class="w-full mt-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded text-xs transition">Close Scanner Camera</button>
+    </div>
+  </div>
+
+  <script>
+    var activeScanningTargetRowId = null;
+    var html5QrCodeScannerInstance = null;
+
+    function openCameraScanner(rowId) {
+      activeScanningTargetRowId = rowId;
+      document.getElementById('scannerModalOverlay').classList.remove('hidden');
+      html5QrCodeScannerInstance = new Html5Qrcode("cameraScannerPreviewZone");
+      html5QrCodeScannerInstance.start(
+        { facingMode: "environment" }, 
+        { fps: 15, qrbox: { width: 250, height: 150 } },
+        (decodedText) => {
+          var row = document.getElementById(activeScanningTargetRowId);
+          if(row) {
+            var lrInput = row.querySelector('.lr-no');
+            if(lrInput) {
+              lrInput.value = decodedText.trim();
+              if(typeof saveToLocalStorage === 'function') saveToLocalStorage();
+            }
+          }
+          closeCameraScanner();
+        },
+        (errorMessage) => { /* Ignore constant feed looking errors */ }
+      ).catch(err => {
+        alert("Camera initialization failed: " + err);
+        closeCameraScanner();
+      });
+    }
+
+    function closeCameraScanner() {
+      document.getElementById('scannerModalOverlay').classList.add('hidden');
+      if (html5QrCodeScannerInstance) {
+        html5QrCodeScannerInstance.stop().then(() => {
+          html5QrCodeScannerInstance = null; activeScanningTargetRowId = null;
+        }).catch(err => console.error(err));
+      }
+    }
   </script>
 </body>
 </html>
