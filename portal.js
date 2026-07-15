@@ -153,18 +153,15 @@ function loadWorkflowHtmlFiles() {
     masterContainer.innerHTML = `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-3"><div><h2 class="text-lg font-bold text-slate-700">Central Product Master Repository (Tab3) <span id="pmTotalCountBadge" class="ml-2 bg-amber-500 text-slate-950 font-mono text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span></h2><p class="text-xs text-slate-400">View SKU catalogs and upload master logs.</p></div><div class="flex items-center space-x-2"><label class="bg-emerald-600 text-white font-bold text-xs py-2 px-3 rounded shadow transition cursor-pointer">📥 Upload Excel CSV<input type="file" id="excelCsvFileInput" accept=".csv" onchange="handleExcelCsvImport(this)" class="hidden"></label><button onclick="downloadProductMasterAsCsv()" class="bg-blue-600 text-white font-bold text-xs py-2 px-3 rounded shadow">📤 Download Catalog</button><button onclick="toggleAddProductModal(true)" class="bg-amber-500 text-slate-950 font-bold text-xs py-2 px-3 rounded shadow">+ Register Item</button></div></div><div class="flex flex-col sm:flex-row items-center gap-2"><div class="w-full"><input type="text" id="pmSearchQuery" onkeyup="filterProductMasterViewTable()" placeholder="Search Item Master by Name, SKU, or Barcode..." class="w-full p-2 border rounded text-sm font-medium bg-white"></div><div class="w-full sm:w-48 flex items-center space-x-1.5"><label class="text-xs font-bold text-slate-500 whitespace-nowrap">View Limit:</label><select id="pmViewLimitSelect" onchange="filterProductMasterViewTable()" class="w-full p-2 border rounded text-sm bg-white text-gray-700"><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="200" selected>200 Rows</option><option value="500">500 Rows</option></select></div></div><div class="overflow-x-auto border rounded-lg shadow-xs"><table class="min-w-full divide-y text-xs text-left"><thead class="bg-slate-800 text-white font-semibold uppercase text-[10px]"><tr><th class="px-4 py-3">Item Barcode</th><th class="px-4 py-3">SKU Code</th><th class="px-4 py-3">Item Description Name</th><th class="px-4 py-3">UOM</th><th class="px-4 py-3">Pack Size</th></tr></thead><tbody id="productMasterTableBody" class="divide-y bg-white text-gray-600"></tbody></table></div></div>`;
   }
 
-  // FIXED DROPDOWNS DELAY BLOCK: Loads caches first so asynchronous data writes safely over them
-  loadB2bCacheData();
-  loadInventoryCacheData();
-  loadRtoCacheData();
-  
+  // CRUCIAL RE-ORDERING FIX: We execute Form Injections FIRST, then fire dropdown populations and recovery cache bindings
   initFormInterceptorsAndDropdowns();
 }
 
+// 1. DYNAMIC DATA FETCH ROUTER: Directly reading current workspace parameters context
 async function fetchLiveDashboardDataRecords() {
   var body = document.getElementById('dataTableBody'); 
   if(!body) return;
-  body.innerHTML = `<tr><td colspan="11" class="text-center p-4">Syncing workspace records...</td></tr>`;
+  body.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-500">Syncing workspace records...</td></tr>`;
   
   var currentTabLabel = (workflowDept === "B2B Dispatch") ? "Tab1" : (workflowDept === "Inventory Logging" ? "Tab4" : "Tab5/Tab6");
   var dashTabTitle = document.getElementById('dashTabTitle');
@@ -176,19 +173,65 @@ async function fetchLiveDashboardDataRecords() {
   const data = await apiFetch("getDashboardDataByWorkspace", workflowDept);
   if(data && Array.isArray(data)) { 
     masterData = data; 
-    renderTable(data); 
+    applyFilters(); // Mapped filter compilation array automatically on loading parameters
   } else { 
     body.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No active operational logs inside ${currentTabLabel} database.</td></tr>`; 
   }
 }
 
+// 1. COMPREHENSIVE DATE RANGE FILTER REWRITE: Resolved chronological filtering bounds calculations
+function applyFilters() {
+  var fromDate = document.getElementById('filterFromDate')?.value || "";
+  var toDate = document.getElementById('filterToDate')?.value || "";
+  var sF = document.getElementById('searchSeries')?.value.toLowerCase().trim() || "";
+  var deF = document.getElementById('searchDept')?.value.toLowerCase().trim() || "";
+  var iF = document.getElementById('searchInvoice')?.value.toLowerCase().trim() || "";
+  var lF = document.getElementById('searchLr')?.value.toLowerCase().trim() || "";
+  var tF = document.getElementById('searchTransporter')?.value.toLowerCase().trim() || "";
+
+  currentlyFilteredData = masterData.filter(function(row) {
+    // Standardizing sheet yyyy-mm-dd ISO values context bounds check
+    if (fromDate && row.date && row.date < fromDate) return false;
+    if (toDate && row.date && row.date > toDate) return false;
+    
+    return (!sF || (row.seriesNo && row.seriesNo.toString().toLowerCase().includes(sF))) &&
+           (!deF || (row.dept && row.dept.toLowerCase().includes(deF))) &&
+           (!iF || (row.invoice && row.invoice.toString().toLowerCase().includes(iF))) &&
+           (!lF || (row.lr && row.lr.toLowerCase().includes(lF)) || (row.status && row.status.toLowerCase().includes(lF))) &&
+           (!tF || (row.transporter && row.transporter.toLowerCase().includes(tF)));
+  });
+  
+  renderTable(currentlyFilteredData);
+}
+
 function renderTable(data) {
-  var b = document.getElementById('dataTableBody'); b.innerHTML = "";
+  var b = document.getElementById('dataTableBody'); if(!b) return; b.innerHTML = "";
   if (!data || data.length === 0) { b.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No active records found matching criteria.</td></tr>`; return; }
   document.getElementById('rowCountLabel').innerText = data.length;
   data.forEach(r => {
     b.insertAdjacentHTML('beforeend', `<tr class="text-xs hover:bg-slate-50"><td class="px-3 py-2 font-bold font-mono ${r.seriesNo.startsWith('RB')?'text-blue-600':(r.seriesNo.startsWith('IN')?'text-emerald-600':'')}">${r.seriesNo}</td><td class="px-3 py-2">${r.date} @ ${r.time}</td><td class="px-3 py-2 text-amber-600 font-bold">${r.dept}</td><td class="px-3 py-2">${r.transporter}</td><td class="px-3 py-2 font-mono font-bold">${r.vehicleNo}</td><td class="px-3 py-2">${r.driverName} <br><span class="text-[10px] text-gray-400">${r.driverMobile || ''}</span></td><td class="px-3 py-2 font-mono">${r.invoice}</td><td class="px-3 py-2 text-center font-bold">${r.boxes}</td><td class="px-3 py-2 max-w-[120px] truncate" title="${r.remark || r.lr || ''}">${r.remark || r.lr}</td><td class="px-3 py-2 text-center font-bold">${r.pallets || r.status}</td><td class="px-3 py-2">${r.incharge}</td></tr>`);
   });
+}
+
+// 2. FIXED универсальный REPRINT ROUTER KEY: Directly maps target module data sheets parameters mapping
+async function executeReprintQuery() {
+  var searchInput = document.getElementById('searchSeriesId').value.trim();
+  var reprintSource = document.getElementById('reprintSourceDept').value;
+  var sBtn = document.getElementById('searchBtn');
+  var statusContainer = document.getElementById('reprintStatusMsg');
+  if(!searchInput) { alert("Please type an ID code reference token first."); return; }
+  
+  sBtn.disabled = true; statusContainer.innerText = "Querying universal archives engine records...";
+  
+  const res = await apiFetch("fetchUniversalGatepassRecord", { seriesId: searchInput, currentWorkspace: reprintSource });
+  sBtn.disabled = false; sBtn.innerText = "Search";
+  
+  if(res && res.success && res.record) {
+    statusContainer.innerHTML = `<div class="p-3 bg-green-50 text-green-800 rounded text-xs font-bold">Successfully loaded ID reference ${res.record.seriesNo}!</div>`;
+    renderPrintLayout(res.record, res.record.seriesNo);
+  } else {
+    statusContainer.innerHTML = `<div class="p-3 bg-red-50 text-red-800 rounded text-xs font-bold">Error: ${res ? res.message : "Record reference token mismatch inside matrix archive."}</div>`;
+  }
 }
 
 function addInvoiceRow(n='', b='', l='', r='') {
@@ -341,7 +384,6 @@ function loadRtoCacheData() {
   }
 }
 
-// FIXED PRINTING RECEIPT LAYOUTS: Exactly mirroring your specified templates format rules
 function renderPrintLayout(d, id) {
   document.getElementById('pdfSeries').innerText = id; 
   document.getElementById('pdfDate').innerText = d.date || new Date().toISOString().split('T')[0]; 
@@ -428,7 +470,6 @@ function renderPrintLayout(d, id) {
   document.getElementById('printArea').classList.remove('hidden'); window.scrollTo(0, document.getElementById('printArea').offsetTop);
 }
 
-// DYNAMIC NAVIGATION HANDLER: Fixed layout routing and sidebar toggle responsive links
 function switchView(viewKey) {
   currentViewTarget = viewKey; localStorage.setItem('current_view_target', viewKey);
   
@@ -463,7 +504,6 @@ function switchView(viewKey) {
   }
 }
 
-// FIXED SIDEBAR EVENT HANDLERS: Resolved click execution blocking
 function toggleSidebar() { 
   var menu = document.getElementById('sidebarMenu');
   var backdrop = document.getElementById('menuBackdrop');
@@ -483,7 +523,7 @@ function activateModuleWorkflow(deptName, viewTarget) {
   localStorage.setItem('active_workflow_dept', deptName); localStorage.setItem('current_view_target', viewTarget);
   document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
   evaluateActiveWorkflowViewState(); switchView(viewTarget); fetchLiveDashboardDataRecords();
-  toggleSidebar(); // Automatically slides the drawer shut after section changes
+  toggleSidebar(); 
 }
 
 function evaluateActiveWorkflowViewState() {
@@ -571,7 +611,6 @@ function populateDropdownsInv(dropdowns) {
   populateDropdown('invInchargeSelect', dropdowns.incharges);
 }
 
-// RESTORED COMPLETE DROPDOWNS HOOK
 function populateDropdownsRto(dropdowns) {
   populateDropdown('rtoB2bTransporterSelect', dropdowns.transporters);
   populateDropdown('rtoB2bInchargeSelect', dropdowns.incharges);
@@ -589,7 +628,10 @@ function syncProductMasterLocalState(recs) {
   });
 }
 
-// Initial Bootstrapping Hook
+// Global Trigger Bindings Hook for input drafts preservation on window exits
+window.addEventListener('pagehide', () => { saveToLocalStorage(); saveInventoryToCache(); saveRtoToCache(); });
+
+// Check session authentication state on boot
 var savedEmail = localStorage.getItem('logged_session_email');
 if(savedEmail && savedEmail.includes('@')) {
   currentUserEmail = savedEmail;
