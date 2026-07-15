@@ -30,7 +30,7 @@ async function apiFetch(action, payload = {}) {
   try {
     const response = await fetch(APPS_SCRIPT_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain" }, // Simple request header prevents preflight OPTIONS blocks
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({ action: action, payload: payload, userEmail: localStorage.getItem('logged_session_email') || "Admin" })
     });
     
@@ -41,6 +41,7 @@ async function apiFetch(action, payload = {}) {
     return await response.json();
   } catch (error) {
     console.error("Connection Error:", error);
+    alert("API Error [" + action + "]: Could not parse data stream. Please verify your Web App deployment settings are set to 'Anyone'.");
     return null;
   }
 }
@@ -98,7 +99,7 @@ async function submitNewPasswordData() {
 function cancelOtpVerificationFlow() { document.getElementById('otpVerificationBlock').classList.add('hidden'); }
 function triggerLogout() { localStorage.clear(); window.location.reload(); }
 
-// Dynamic Form Injections (Splitting HTML components programmatically)
+// Dynamic Form Injections (Bypassing Race Conditions using an explicit async pipeline)
 async function loadWorkflowHtmlFiles() {
   const container = document.getElementById('dynamicFormContainer');
   const masterContainer = document.getElementById('view-product-master');
@@ -115,7 +116,8 @@ async function loadWorkflowHtmlFiles() {
     container.innerHTML = dispatchRes + invRes + rtoRes;
     masterContainer.innerHTML = masterRes;
     
-    initFormInterceptorsAndDropdowns();
+    // Explicit Await: Assures markup strings are populated into the DOM completely before querying data lines
+    await initFormInterceptorsAndDropdowns();
   } catch (err) {
     console.error("HTML Module Loading Failure:", err);
   }
@@ -148,6 +150,7 @@ function switchView(viewKey) {
 function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('-translate-x-full'); document.getElementById('menuBackdrop').classList.toggle('hidden'); }
 function toggleSubMenu(menuId, open = false) {
   var m = document.getElementById(menuId);
+  if (!m) return;
   if (m.style.maxHeight && m.style.maxHeight !== "0px" && !open) { m.style.maxHeight = "0px"; m.style.opacity = "0"; }
   else { m.style.maxHeight = "250px"; m.style.opacity = "1"; }
 }
@@ -241,16 +244,17 @@ async function handleInventorySubmit(e) {
 }
 
 // Dynamic Search Lists Controllers
-function showInvSearchDropdown(id, type) { hideAllInvDropdownLists(); document.getElementById(id).querySelector(`.inv-${type}-dropdown-list`).classList.remove('hidden'); }
+function showInvSearchDropdown(id, type) { hideAllInvDropdownLists(); var r = document.getElementById(id); if(r) { var t = r.querySelector(`.inv-${type}-dropdown-list`); if(t) t.classList.remove('hidden'); } }
 function hideAllInvDropdownLists() { document.querySelectorAll('.inv-barcode-dropdown-list, .inv-item-dropdown-list, .inv-sku-dropdown-list').forEach(el => el.classList.add('hidden')); }
 function selectInvProductData(id, prod) {
-  var r = document.getElementById(id); r.querySelector('.inv-barcode-search-input').value = prod.barcode; r.querySelector('.inv-item-search-input').value = prod.itemName; r.querySelector('.inv-sku-search-input').value = prod.skuCode;
+  var r = document.getElementById(id); if(!r) return; r.querySelector('.inv-barcode-search-input').value = prod.barcode; r.querySelector('.inv-item-search-input').value = prod.itemName; r.querySelector('.inv-sku-search-input').value = prod.skuCode;
   r.setAttribute('data-selected-item', prod.itemName); r.setAttribute('data-selected-barcode', prod.barcode); r.setAttribute('data-selected-sku', prod.skuCode); hideAllInvDropdownLists();
 }
 
 function buildDropdownDomTreeLists(id) {
   var r = document.getElementById(id); if(!r) return;
   var bList = r.querySelector('.inv-barcode-dropdown-list'); var iList = r.querySelector('.inv-item-dropdown-list'); var sList = r.querySelector('.inv-sku-dropdown-list');
+  if(!bList || !iList || !sList) return;
   globalProductMasterList.forEach(prod => {
     var d1 = document.createElement('div'); d1.className = "p-1 hover:bg-amber-100 cursor-pointer"; d1.innerText = prod.barcode; d1.onclick = () => selectInvProductData(id, prod); bList.appendChild(d1);
     var d2 = document.createElement('div'); d2.className = "p-1 hover:bg-amber-100 cursor-pointer"; d2.innerText = prod.itemName; d2.onclick = () => selectInvProductData(id, prod); iList.appendChild(d2);
@@ -303,7 +307,7 @@ async function fetchLiveDashboardDataRecords() {
 }
 
 function renderTable(data) {
-  var b = document.getElementById('dataTableBody'); b.innerHTML = "";
+  var b = document.getElementById('dataTableBody'); if(!b) return; b.innerHTML = "";
   if (!data) return;
   document.getElementById('rowCountLabel').innerText = data.length;
   data.forEach(r => {
@@ -341,7 +345,7 @@ function renderPrintLayout(d, id) {
   var savedEmail = localStorage.getItem('logged_session_email');
   if(savedEmail && savedEmail.includes('@')) {
     currentUserEmail = savedEmail;
-    document.getElementById('userDisplay').innerText = currentUserEmail;
+    var uDisp = document.getElementById('userDisplay'); if(uDisp) uDisp.innerText = currentUserEmail;
     document.getElementById('view-login').classList.add('hidden');
     document.getElementById('view-portal').classList.remove('hidden');
     loadWorkflowHtmlFiles();
