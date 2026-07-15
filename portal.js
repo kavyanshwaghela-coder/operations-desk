@@ -9,7 +9,7 @@ var globalProductMasterList = [];
 var currentActiveRtoWorkflowSubMode = "B2B";
 
 // CHANGE THIS: Paste your Google Apps Script URL here!
-const APPS_SCRIPT_API_URL = "YOUR_APPS_SCRIPT_WEBAPP_DEPLOYED_URL_HERE";
+const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbyP6hzAZZdZR-3-i3mlaoiBZ4GaR_fUDoqeQeT8RrZGHa1L6UssYzUBLANH4K8Y_ixCCA/exec";
 
 // Core Fetch API Connector
 async function apiFetch(action, payload = {}) {
