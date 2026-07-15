@@ -25,27 +25,23 @@ function showMessage(txt, isSuccess) {
   msg.classList.remove('hidden');
 }
 
-// Core Fetch API Connector (Optimized for Google Redirect Engines)
+// Core Fetch API Connector (Restored for Transparent Data Streams Reading)
 async function apiFetch(action, payload = {}) {
   try {
     const response = await fetch(APPS_SCRIPT_API_URL, {
       method: "POST",
-      mode: "no-cors", // Crucial: Bypasses Google's script.googleusercontent.com 302 redirect block
-      headers: { "Content-Type": "text/plain" },
+      headers: { "Content-Type": "text/plain" }, // Simple request header prevents preflight OPTIONS blocks
       body: JSON.stringify({ action: action, payload: payload, userEmail: localStorage.getItem('logged_session_email') || "Admin" })
     });
     
-    // In no-cors mode, JavaScript cannot read the response body directly for security.
-    // To maintain login functionality natively on static setups, we use a structured fallback handler:
-    if (action === "checkLogin") {
-      return { success: true, email: payload.email }; 
+    if (!response.ok) {
+      throw new Error("HTTP status check failure: " + response.status);
     }
     
-    // For non-auth actions, read standard response chains safely
     return await response.json();
   } catch (error) {
     console.error("Connection Error:", error);
-    return { success: false, message: "Network connection failed. Please check your script deployment version." };
+    return null;
   }
 }
 
@@ -64,7 +60,7 @@ async function handleLogin(e) {
     localStorage.setItem('current_view_target', 'entry-view');
     window.location.reload();
   } else { 
-    showMessage(res ? res.message : "Authentication error from endpoint.", false); 
+    showMessage(res ? res.message : "Authentication error. Verify script deployment access configuration.", false); 
     btn.disabled = false; 
     btn.innerText = "Access Workspace"; 
   }
@@ -78,17 +74,17 @@ async function handleOtpRequestFlow(purpose) {
   document.getElementById('passwordResetBlock').classList.add('hidden');
   document.getElementById('otpBlockTitle').innerText = otpPurpose === 'login' ? "Direct OTP Access" : "Password Recovery";
   const res = await apiFetch("requestPasswordOtp", { email: email });
-  if(res.success) { currentTrueOtpSeed = res.trueOtpSeed; document.getElementById('otpVerificationBlock').classList.remove('hidden'); showMessage("OTP sent to inbox.", true); } else { showMessage(res.message, false); }
+  if(res && res.success) { currentTrueOtpSeed = res.trueOtpSeed; document.getElementById('otpVerificationBlock').classList.remove('hidden'); showMessage("OTP sent to inbox.", true); } else { showMessage(res ? res.message : "Failed to trigger OTP.", false); }
 }
 
 async function executePasswordOtpVerification() {
   var email = document.getElementById('email').value.trim();
   var token = document.getElementById('otpTokenInput').value.trim();
   const res = await apiFetch("verifyOtpAndRetrievePassword", { email: email, userEnteredOtp: token, trueOtp: currentTrueOtpSeed });
-  if(res.success) {
+  if(res && res.success) {
     if (otpPurpose === 'login') { localStorage.setItem('logged_session_email', email); window.location.reload(); }
     else { document.getElementById('otpVerificationBlock').classList.add('hidden'); document.getElementById('passwordResetBlock').classList.remove('hidden'); showMessage("Token authorized! Set new password.", true); }
-  } else { showMessage(res.message, false); }
+  } else { showMessage(res ? res.message : "Invalid verification code entry.", false); }
 }
 
 async function submitNewPasswordData() {
@@ -96,7 +92,7 @@ async function submitNewPasswordData() {
   var newPass = document.getElementById('newPassInput').value.trim();
   if(newPass !== document.getElementById('confirmPassInput').value.trim()) { showMessage("Passwords do not match.", false); return; }
   const res = await apiFetch("updateUserPassword", { email: email, newPassword: newPass });
-  if(res.success) { document.getElementById('password').value = newPass; document.getElementById('passwordResetBlock').classList.add('hidden'); showMessage("Password saved!", true); } else { showMessage(res.message, false); }
+  if(res && res.success) { document.getElementById('password').value = newPass; document.getElementById('passwordResetBlock').classList.add('hidden'); showMessage("Password saved!", true); } else { showMessage(res ? res.message : "Write failure.", false); }
 }
 
 function cancelOtpVerificationFlow() { document.getElementById('otpVerificationBlock').classList.add('hidden'); }
