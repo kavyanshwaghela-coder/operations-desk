@@ -1,0 +1,44 @@
+<div id="b2bDispatchFormBlock">
+  <h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Daily Execution Input Stream (Tab1)</h2>
+  <div id="liveDuplicateWarningBox" class="hidden mb-4 bg-red-100 border border-red-400 text-red-800 rounded-lg p-4 space-y-2">
+    <strong class="text-sm font-bold">⚠️ DUPLICATE INVOICE DETECTED IN SYSTEM</strong>
+    <p class="text-xs">The invoice highlighted in red below already exists. Historical record metadata:</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border border-red-200 rounded p-2.5 text-xs font-mono text-gray-700">
+      <div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Series ID</span> <span id="dupSeries" class="font-bold text-red-600"></span></div>
+      <div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">LR No.</span> <span id="dupLr"></span></div>
+      <div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Date</span> <span id="dupDate"></span></div>
+      <div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Transporter</span> <span id="dupTrans"></span></div>
+    </div>
+  </div>
+  <form id="entryForm" onsubmit="handleFormSubmit(event)" oninput="saveToLocalStorage()">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="dateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Time Input Stamp *</label><input type="time" id="timeInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Department (Locked) *</label><input type="text" id="deptDisplayField" readonly value="B2B Dispatch" class="w-full p-2 border rounded-md bg-slate-100 font-semibold text-sm text-slate-700"></div>
+      <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label>
+        <select id="transporterSelect" required onchange="toggleOtherInput(this, 'transporterOtherContainer', 'transporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select>
+        <div id="transporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="transporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 border-t pt-3">
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="vehicleNo" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Full Name *</label><input type="text" id="driverName" required placeholder="Enter Driver Name" class="w-full p-2 border rounded-md text-sm"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile Number *</label><input type="tel" id="driverMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm"></div>
+    </div>
+    <div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg">
+      <h3 class="text-sm font-bold text-slate-700 mb-3">Invoices Breakdown Log</h3>
+      <div id="invoiceContainer" class="space-y-3"></div>
+      <div class="flex justify-end mt-4 pt-2 border-t border-slate-200"><button type="button" onclick="addInvoiceRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm">+ Add Invoice Row</button></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Pallet Count</label><input type="number" id="palletCount" min="0" class="w-full p-2 border rounded-md text-sm bg-white"></div>
+      <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1">Loading Incharge *</label>
+        <select id="inchargeSelect" required onchange="toggleOtherInput(this, 'inchargeOtherContainer', 'inchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select>
+        <div id="inchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="inchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div>
+      </div>
+    </div>
+    <button type="submit" id="submitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Submit & Generate Gatepass</button>
+  </form>
+</div>
