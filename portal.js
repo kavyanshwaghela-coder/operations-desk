@@ -11,6 +11,19 @@ var currentActiveRtoWorkflowSubMode = "B2B";
 // CHANGE THIS: Paste your Google Apps Script URL here!
 const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbyP6hzAZZdZR-3-i3mlaoiBZ4GaR_fUDoqeQeT8RrZGHa1L6UssYzUBLANH4K8Y_ixCCA/exec";
 
+// Global Toast Status Message Handler
+function showMessage(txt, isSuccess) {
+  var msg = document.getElementById('statusMessage');
+  if (!msg) return;
+  msg.innerText = txt;
+  msg.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200');
+  if(isSuccess) {
+    msg.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+  } else {
+    msg.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+  }
+}
+
 // Core Fetch API Connector
 async function apiFetch(action, payload = {}) {
   try {
@@ -22,7 +35,7 @@ async function apiFetch(action, payload = {}) {
     return await response.json();
   } catch (error) {
     console.error("Connection Error:", error);
-    return { success: false, message: "Server connection failed: " + error.toString() };
+    return { success: false, message: "Network connection failed. Please check your script deployment." };
   }
 }
 
@@ -33,13 +46,18 @@ async function handleLogin(e) {
   var password = document.getElementById('password').value.trim();
   var btn = document.getElementById('loginBtn');
   btn.disabled = true; btn.innerText = "Verifying...";
+  
   const res = await apiFetch("checkLogin", { email: email, password: password });
   if (res.success) {
     localStorage.setItem('logged_session_email', res.email);
     localStorage.setItem('active_workflow_dept', 'B2B Dispatch');
     localStorage.setItem('current_view_target', 'entry-view');
     window.location.reload();
-  } else { showMessage(res.message, false); btn.disabled = false; btn.innerText = "Access Workspace"; }
+  } else { 
+    showMessage(res.message, false); 
+    btn.disabled = false; 
+    btn.innerText = "Access Workspace"; 
+  }
 }
 
 var currentTrueOtpSeed = ""; var otpPurpose = "forgot";
