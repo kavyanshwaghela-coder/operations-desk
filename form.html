@@ -216,7 +216,10 @@
       <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><strong>Driver Signature</strong></div>
       <div class="text-center"><div class="border-b border-black w-44 h-8 mb-1"></div><strong>Authorized Signature</strong></div>
     </div>
-    <button onclick="window.print()" class="mt-8 bg-slate-800 text-white text-xs px-5 py-2.5 rounded no-print block mx-auto font-bold shadow">Trigger Device Print Command</button>
+    <div class="flex space-x-2 justify-center mt-6 no-print">
+      <button onclick="window.print()" class="bg-slate-800 text-white text-xs px-5 py-2.5 rounded font-bold shadow">Trigger Device Print Command</button>
+      <button onclick="closePrintLayoutView()" class="bg-slate-200 text-slate-700 text-xs px-5 py-2.5 rounded font-bold shadow">Back to Workspace</button>
+    </div>
   </div>
 
   <!-- DYNAMIC BARCODE CAMERA SCANNER POPUP MODAL OVERLAY -->
@@ -230,7 +233,7 @@
   </div>
 
   <script>
-    const API_URL = "YOUR_GOOGLE_WEB_APP_URL"; // <-- PASTE YOUR APPS SCRIPT URL HERE
+    const API_URL = "https://script.google.com/macros/s/AKfycbwvFD1rYktiMXz15RiTi7QYgzlM_LJ8djYB61Ovka9AZ70baQ/exec"; // Ensure your correct active live deployment /exec link is loaded here
     var currentUserEmail = localStorage.getItem('logged_session_email') || "System Admin";
     var masterData = [], currentlyFilteredData = [], globalProductMasterList = [];
     var workflowDept = localStorage.getItem('active_workflow_dept') || "B2B Dispatch";
@@ -240,6 +243,7 @@
     document.getElementById('userDisplay').innerText = currentUserEmail;
     document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
 
+    // Standard URL-encoded FormData formatting connection API to resolve CORS restrictions
     async function callBackend(actionName, payloadData = {}) {
       try {
         var formData = new FormData();
@@ -365,6 +369,11 @@
         if(workflowDept === "Inventory Logging") document.getElementById('sub-inv-dashboard').classList.add('text-amber-400', 'font-bold');
         if(workflowDept === "RTO (IN)") document.getElementById('sub-rto-dashboard').classList.add('text-amber-400', 'font-bold');
       }
+    }
+
+    function closePrintLayoutView() {
+      document.getElementById('printArea').classList.add('hidden');
+      switchView(currentViewTarget);
     }
 
     function adjustReprintLabelsText() {
@@ -582,7 +591,7 @@
         },
         (errorMessage) => { /* Ignore constant feed looking errors */ }
       ).catch(err => {
-        alert("Camera initialization failed: " + err);
+        alert("Camera initialization failed. Please allow device camera permissions: " + err);
         closeCameraScanner();
       });
     }
