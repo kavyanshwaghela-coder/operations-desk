@@ -147,11 +147,13 @@ function loadWorkflowHtmlFiles() {
   
   container.innerHTML = dispatchHtmlStr + inventoryHtmlStr + rtoHtmlStr;
   
+  // Dynamic Master View block mounting
   const masterContainer = document.getElementById('view-product-master');
   if(masterContainer) {
     masterContainer.innerHTML = `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-3"><div><h2 class="text-lg font-bold text-slate-700">Central Product Master Repository (Tab3) <span id="pmTotalCountBadge" class="ml-2 bg-amber-500 text-slate-950 font-mono text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span></h2><p class="text-xs text-slate-400">View SKU catalogs and upload master logs.</p></div><div class="flex items-center space-x-2"><label class="bg-emerald-600 text-white font-bold text-xs py-2 px-3 rounded shadow transition cursor-pointer">📥 Upload Excel CSV<input type="file" id="excelCsvFileInput" accept=".csv" onchange="handleExcelCsvImport(this)" class="hidden"></label><button onclick="downloadProductMasterAsCsv()" class="bg-blue-600 text-white font-bold text-xs py-2 px-3 rounded shadow">📤 Download Catalog</button><button onclick="toggleAddProductModal(true)" class="bg-amber-500 text-slate-950 font-bold text-xs py-2 px-3 rounded shadow">+ Register Item</button></div></div><div class="flex flex-col sm:flex-row items-center gap-2"><div class="w-full"><input type="text" id="pmSearchQuery" onkeyup="filterProductMasterViewTable()" placeholder="Search Item Master by Name, SKU, or Barcode..." class="w-full p-2 border rounded text-sm font-medium bg-white"></div><div class="w-full sm:w-48 flex items-center space-x-1.5"><label class="text-xs font-bold text-slate-500 whitespace-nowrap">View Limit:</label><select id="pmViewLimitSelect" onchange="filterProductMasterViewTable()" class="w-full p-2 border rounded text-sm bg-white text-gray-700"><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="200" selected>200 Rows</option><option value="500">500 Rows</option></select></div></div><div class="overflow-x-auto border rounded-lg shadow-xs"><table class="min-w-full divide-y text-xs text-left"><thead class="bg-slate-800 text-white font-semibold uppercase text-[10px]"><tr><th class="px-4 py-3">Item Barcode</th><th class="px-4 py-3">SKU Code</th><th class="px-4 py-3">Item Description Name</th><th class="px-4 py-3">UOM</th><th class="px-4 py-3">Pack Size</th></tr></thead><tbody id="productMasterTableBody" class="divide-y bg-white text-gray-600"></tbody></table></div></div>`;
   }
 
+  // FIXED DROPDOWNS DELAY BLOCK: Loads caches first so asynchronous data writes safely over them
   loadB2bCacheData();
   loadInventoryCacheData();
   loadRtoCacheData();
@@ -339,6 +341,7 @@ function loadRtoCacheData() {
   }
 }
 
+// FIXED PRINTING RECEIPT LAYOUTS: Exactly mirroring your specified templates format rules
 function renderPrintLayout(d, id) {
   document.getElementById('pdfSeries').innerText = id; 
   document.getElementById('pdfDate').innerText = d.date || new Date().toISOString().split('T')[0]; 
@@ -425,7 +428,7 @@ function renderPrintLayout(d, id) {
   document.getElementById('printArea').classList.remove('hidden'); window.scrollTo(0, document.getElementById('printArea').offsetTop);
 }
 
-// 1. DYNAMIC NAVIGATION HANDLER: Fixed layout routing and sidebar toggle responsive links
+// DYNAMIC NAVIGATION HANDLER: Fixed layout routing and sidebar toggle responsive links
 function switchView(viewKey) {
   currentViewTarget = viewKey; localStorage.setItem('current_view_target', viewKey);
   
@@ -460,7 +463,7 @@ function switchView(viewKey) {
   }
 }
 
-// Fixed explicit toggle event rule mapping
+// FIXED SIDEBAR EVENT HANDLERS: Resolved click execution blocking
 function toggleSidebar() { 
   var menu = document.getElementById('sidebarMenu');
   var backdrop = document.getElementById('menuBackdrop');
@@ -480,7 +483,7 @@ function activateModuleWorkflow(deptName, viewTarget) {
   localStorage.setItem('active_workflow_dept', deptName); localStorage.setItem('current_view_target', viewTarget);
   document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
   evaluateActiveWorkflowViewState(); switchView(viewTarget); fetchLiveDashboardDataRecords();
-  toggleSidebar(); // Auto closing sidebar after menu pick
+  toggleSidebar(); // Automatically slides the drawer shut after section changes
 }
 
 function evaluateActiveWorkflowViewState() {
@@ -547,6 +550,35 @@ function buildDropdownDomTreeLists(id) {
   });
 }
 
+function populateDropdown(id, items) {
+  var select = document.getElementById(id);
+  if(!select || select.children.length > 1) return;
+  items.forEach(function(item) {
+    var opt = document.createElement('option'); opt.value = item; opt.innerText = item;
+    select.appendChild(opt);
+  });
+  var otherOpt = document.createElement('option'); otherOpt.value = "Other"; otherOpt.innerText = "Other (Type Input)";
+  select.appendChild(otherOpt);
+}
+
+function populateDropdownsB2b(dropdowns) {
+  populateDropdown('transporterSelect', dropdowns.transporters);
+  populateDropdown('inchargeSelect', dropdowns.incharges);
+}
+
+function populateDropdownsInv(dropdowns) {
+  populateDropdown('invTransporterSelect', dropdowns.transporters);
+  populateDropdown('invInchargeSelect', dropdowns.incharges);
+}
+
+// RESTORED COMPLETE DROPDOWNS HOOK
+function populateDropdownsRto(dropdowns) {
+  populateDropdown('rtoB2bTransporterSelect', dropdowns.transporters);
+  populateDropdown('rtoB2bInchargeSelect', dropdowns.incharges);
+  populateDropdown('rtoB2cCourierSelect', dropdowns.transporters);
+  populateDropdown('rtoB2cInchargeSelect', dropdowns.incharges);
+}
+
 // Master SKU Catalog Functions
 function syncProductMasterLocalState(recs) {
   var body = document.getElementById('productMasterTableBody'); if(!body) return; body.innerHTML = "";
@@ -557,10 +589,7 @@ function syncProductMasterLocalState(recs) {
   });
 }
 
-// Global Trigger Bindings Hook for input drafts preservation on window exits
-window.addEventListener('pagehide', () => { saveToLocalStorage(); saveInventoryToCache(); saveRtoToCache(); });
-
-// Check session authentication state on boot
+// Initial Bootstrapping Hook
 var savedEmail = localStorage.getItem('logged_session_email');
 if(savedEmail && savedEmail.includes('@')) {
   currentUserEmail = savedEmail;
