@@ -9,7 +9,7 @@ var globalProductMasterList = [];
 var currentActiveRtoWorkflowSubMode = "B2B";
 
 // CHANGE THIS: Paste your Google Apps Script URL here!
-const APPS_SCRIPT_API_URL = "YOUR_APPS_SCRIPT_WEBAPP_DEPLOYED_URL_HERE";
+const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbwsvURHNMAFH9X9pd_oZ7iv6Z1sgbPSMBUADnF9QEb9SklcG1BzHA9SbtXMEqsmcFSw/exec";
 
 // Global Toast Status Message Handler
 function showMessage(txt, isSuccess) {
