@@ -37,14 +37,19 @@
       </div>
       <h2 class="text-xl font-bold text-center text-gray-800">Operational Portal</h2>
       <p class="text-xs text-center text-gray-400 mb-6">B2B Workflow & Gatepass Access</p>
+      
       <div id="statusMessage" class="text-xs mb-4 text-center hidden p-2.5 rounded-lg font-semibold"></div>
+      
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="mb-4">
           <label class="block text-gray-700 text-xs font-bold mb-1">Email ID *</label>
           <input type="email" id="email" required placeholder="user@quickshift.com" class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-700">
         </div>
         <div class="mb-3">
-          <div class="flex justify-between items-center mb-1"><label class="block text-gray-700 text-xs font-bold">Password *</label><button type="button" onclick="handleOtpRequestFlow('forgot')" class="text-amber-600 hover:underline text-[11px] font-semibold">Forgot Password?</button></div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-gray-700 text-xs font-bold">Password *</label>
+            <button type="button" onclick="handleOtpRequestFlow('forgot')" class="text-amber-600 hover:underline text-[11px] font-semibold">Forgot Password?</button>
+          </div>
           <input type="password" id="password" required placeholder="••••••••" class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-700">
         </div>
         <div class="mb-4 flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
@@ -53,6 +58,7 @@
         </div>
         <button type="submit" id="loginBtn" class="w-full brand-bg text-white py-2.5 rounded-md font-bold hover:opacity-90 transition text-sm shadow-sm tracking-wide">Access Workspace</button>
       </form>
+
       <!-- Verification Blocks -->
       <div id="otpVerificationBlock" class="hidden mt-5 pt-4 border-t-2 border-dashed border-slate-200 bg-slate-50 p-4 rounded-xl">
         <h3 id="otpBlockTitle" class="text-xs font-bold uppercase text-slate-700 tracking-wider mb-2">Secure Validation Required</h3>
@@ -119,7 +125,7 @@
     <main class="flex-grow p-3 md:p-6 max-w-5xl w-full mx-auto">
       <div id="statusMsg" class="hidden mb-4 p-3 rounded font-bold text-center text-sm shadow-xs"></div>
       
-      <!-- SUB CONTAINER MOUNTING FRAMEWORK ANCHOR SLOTS -->
+      <!-- CONT-VIEW BLOCKS MOUNT -->
       <div id="view-entry" class="app-view bg-white rounded-lg shadow-md p-4 md:p-6 border border-slate-100">
         <div id="dynamicFormContainer"></div>
       </div>
@@ -169,7 +175,7 @@
     </main>
   </div>
 
-  <!-- PDF SLIP ENGINE HARD-COPY PRINT GENERATOR SYSTEM LAYER -->
+  <!-- PDF SLIP ENGINE SYSTEM PRINT CANVAS -->
   <div id="printArea" class="hidden p-8 bg-white text-black max-w-3xl mx-auto border-2 border-gray-800 mt-6">
     <div class="flex items-center justify-center space-x-3 border-b-2 border-black pb-4 mb-4"><svg class="w-9 h-9" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="#000000"/><path d="M52 22L32 54H48L44 78L68 42H50L52 22Z" fill="#ffffff"/></svg><div><h1 class="text-2xl font-black uppercase tracking-tight" id="pdfTitle">QUICKSHIFT GATEPASS</h1></div></div>
     <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs mb-4 pb-2 border-b">
