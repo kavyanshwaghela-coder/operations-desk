@@ -44,6 +44,11 @@ document.getElementById('b2bFormPlaceholder').innerHTML = `
   </form>
 </div>`;
 
+// Set default fallback value on initiation loops
+if(document.getElementById('deptDisplayField')) {
+  document.getElementById('deptDisplayField').value = "B2B Dispatch";
+}
+
 function populateDropdownsB2b(dropdowns) {
   populateDropdown('transporterSelect', dropdowns.transporters);
   populateDropdown('inchargeSelect', dropdowns.incharges);
@@ -205,10 +210,11 @@ async function handleFormSubmit(e) {
     palletCount: document.getElementById('palletCount').value || 0, incharge: finalIncharge, invoices: invoicesData
   };
 
+  // Convert submission mechanism parameters into structured URL-encoded Form-Data arrays
   var formData = new FormData();
   formData.append("action", "submitEntries");
   formData.append("payload", JSON.stringify({ formData: payload }));
-  formData.append("userEmail", currentUserEmail); // Fixes anonymous logging error
+  formData.append("userEmail", currentUserEmail); // Injects active session profile context to avoid anonymous fallback row inputs
 
   try {
     const response = await fetch(API_URL, { method: "POST", body: formData });
@@ -223,6 +229,6 @@ async function handleFormSubmit(e) {
     } else alert(res.message);
   } catch (err) {
     btn.disabled = false; btn.innerText = "Submit & Generate Gatepass";
-    alert("Submission error: " + err.toString());
+    alert("System submission error network exception: " + err.toString());
   }
 }
