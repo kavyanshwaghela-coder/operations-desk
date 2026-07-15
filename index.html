@@ -61,23 +61,33 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyP6hzAZZdZR-3-i3mlaoiBZ4GaR_fUDoqeQeT8RrZGHa1L6UssYzUBLANH4K8Y_ixCCA/exec"; // <-- PASTE YOUR APPS SCRIPT URL HERE
     var currentTrueOtpSeed = "", otpPurpose = "forgot";
 
+    // Uses URLSearchParams to guarantee compatibility with Google Apps Script's e.parameter
     async function callBackend(action, payload = {}) {
       try {
+        const details = {
+          "action": action,
+          "payload": JSON.stringify(payload),
+          "userEmail": localStorage.getItem('logged_session_email') || ""
+        };
+
+        var formBody = [];
+        for (var property in details) {
+          var encodedKey = encodeURIComponent(property);
+          var encodedValue = encodeURIComponent(details[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
         const response = await fetch(API_URL, {
           method: "POST",
-          mode: "cors", // Forces browser connection to clear standard CORS rules
-          headers: { 
-            // Avoid using application/json here as it triggers heavy preflight checks
-            "Content-Type": "text/plain;charset=utf-8" 
-          },
-          body: JSON.stringify({ action, payload, userEmail: localStorage.getItem('logged_session_email') || "" })
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body: formBody
         });
         return await response.json();
       } catch (err) {
         return { success: false, message: "Connection error: " + err.toString() };
       }
     }
-
     window.onload = function() {
       if(localStorage.getItem('logged_session_email')) window.location.href = "form.html";
     };
