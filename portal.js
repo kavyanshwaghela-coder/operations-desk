@@ -9,7 +9,7 @@ var globalProductMasterList = [];
 var currentActiveRtoWorkflowSubMode = "B2B";
 
 // CHANGE THIS: Paste your Google Apps Script URL here!
-const APPS_SCRIPT_API_URL = "https://script.google.com/macros/s/AKfycbyP6hzAZZdZR-3-i3mlaoiBZ4GaR_fUDoqeQeT8RrZGHa1L6UssYzUBLANH4K8Y_ixCCA/exec";
+const APPS_SCRIPT_API_URL = "YOUR_APPS_SCRIPT_WEBAPP_DEPLOYED_URL_HERE";
 
 // Global Toast Status Message Handler
 function showMessage(txt, isSuccess) {
@@ -22,6 +22,7 @@ function showMessage(txt, isSuccess) {
   } else {
     msg.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
   }
+  msg.classList.remove('hidden');
 }
 
 // Core Fetch API Connector
@@ -35,7 +36,7 @@ async function apiFetch(action, payload = {}) {
     return await response.json();
   } catch (error) {
     console.error("Connection Error:", error);
-    return { success: false, message: "Network connection failed. Please check your script deployment." };
+    return { success: false, message: "Network connection failed. Please check your script deployment version." };
   }
 }
 
@@ -48,13 +49,13 @@ async function handleLogin(e) {
   btn.disabled = true; btn.innerText = "Verifying...";
   
   const res = await apiFetch("checkLogin", { email: email, password: password });
-  if (res.success) {
+  if (res && res.success) {
     localStorage.setItem('logged_session_email', res.email);
     localStorage.setItem('active_workflow_dept', 'B2B Dispatch');
     localStorage.setItem('current_view_target', 'entry-view');
     window.location.reload();
   } else { 
-    showMessage(res.message, false); 
+    showMessage(res ? res.message : "Authentication error from endpoint.", false); 
     btn.disabled = false; 
     btn.innerText = "Access Workspace"; 
   }
@@ -99,19 +100,21 @@ async function loadWorkflowHtmlFiles() {
   if(!container) return;
 
   // Asynchronously fetch separated template blocks natively
-  const [dispatchRes, invRes, rtoRes, masterRes] = await Promise.all([
-    fetch('dispatch.html').then(r => r.text()),
-    fetch('inventory.html').then(r => r.text()),
-    fetch('rto.html').then(r => r.text()),
-    fetch('master.html').then(r => r.text())
-  ]);
+  try {
+    const [dispatchRes, invRes, rtoRes, masterRes] = await Promise.all([
+      fetch('dispatch.html').then(r => r.text()),
+      fetch('inventory.html').then(r => r.text()),
+      fetch('rto.html').then(r => r.text()),
+      fetch('master.html').then(r => r.text())
+    ]);
 
-  container.innerHTML = dispatchRes + invRes + rtoRes;
-  masterContainer.innerHTML = masterRes;
-  
-  // Re-run dynamic triggers bound to configurations
-  if(typeof window.onload === 'function') {
+    container.innerHTML = dispatchRes + invRes + rtoRes;
+    masterContainer.innerHTML = masterRes;
+    
+    // Re-run dynamic triggers bound to configurations
     initFormInterceptorsAndDropdowns();
+  } catch (err) {
+    console.error("HTML Module Loading Failure:", err);
   }
 }
 
@@ -328,5 +331,17 @@ function renderPrintLayout(d, id) {
   document.getElementById('printArea').classList.remove('hidden'); window.scrollTo(0, document.getElementById('printArea').offsetTop);
 }
 
-// Initial Bootstrapping Hook
-loadWorkflowHtmlFiles();
+// Check session authentication state on boot
+(function() {
+  var savedEmail = localStorage.getItem('logged_session_email');
+  if(savedEmail && savedEmail.includes('@')) {
+    currentUserEmail = savedEmail;
+    document.getElementById('userDisplay').innerText = currentUserEmail;
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-portal').classList.remove('hidden');
+    loadWorkflowHtmlFiles();
+  } else {
+    document.getElementById('view-login').classList.remove('hidden');
+    document.getElementById('view-portal').classList.add('hidden');
+  }
+})();
