@@ -1,0 +1,33 @@
+<div id="inventoryFormBlock">
+  <h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Inventory Operations Stream (Tab4)</h2>
+  <form id="inventoryLogForm" onsubmit="handleInventorySubmit(event)" oninput="saveInventoryToCache()">
+    <div class="bg-slate-100 p-4 rounded-xl border mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="col-span-1 sm:col-span-2 md:col-span-4 border-b pb-1 mb-1"><h4 class="text-xs font-bold text-slate-600 uppercase">🔗 Inward Shipment Header Parameters</h4></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="invDateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">PO / Invoice No *</label><input type="text" id="invPoInvoiceNo" required placeholder="Enter PO/Invoice ID" class="w-full p-2 border rounded-md text-sm bg-white font-mono"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Customer Name *</label><input type="text" id="invCustomerName" required placeholder="Enter Customer Name" class="w-full p-2 border rounded-md text-sm bg-white"></div>
+      <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1">Inward Incharge *</label>
+        <select id="invInchargeSelect" required onchange="toggleOtherInput(this, 'invInchargeOtherContainer', 'invInchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select>
+        <div id="invInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="invInchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label>
+        <select id="invTransporterSelect" required onchange="toggleOtherInput(this, 'invTransporterOtherContainer', 'invTransporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select>
+        <div id="invTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="invTransporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div>
+      </div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle No *</label><input type="text" id="invVehicleNo" required placeholder="MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="invDriverName" required placeholder="Driver Full Name" class="w-full p-2 border rounded-md text-sm bg-white"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Number *</label><input type="tel" id="invDriverNumber" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">LR No *</label><input type="text" id="invLrNo" required placeholder="Enter LR Number" class="w-full p-2 border rounded-md text-sm font-mono"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Qty *</label><input type="number" id="invPoTotalQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div>
+      <div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Box Qty *</label><input type="number" id="invPoTotalBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div>
+    </div>
+    <div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg">
+      <h3 class="text-sm font-bold text-slate-700 mb-3">Physical Inward Material Row Matrix</h3>
+      <div id="inventoryItemsContainer" class="space-y-4"></div>
+      <div class="flex justify-end mt-4 pt-2 border-t"><button type="button" onclick="addInventoryItemRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm">+ Add Material Row</button></div>
+    </div>
+    <button type="submit" id="invSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Commit Material Logs to Tab4 Ledger</button>
+  </form>
+</div>
