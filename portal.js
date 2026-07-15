@@ -25,7 +25,7 @@ function showMessage(txt, isSuccess) {
   msg.classList.remove('hidden');
 }
 
-// Core Fetch API Connector (Restored for Transparent Data Streams Reading)
+// Core Fetch API Connector
 async function apiFetch(action, payload = {}) {
   try {
     const response = await fetch(APPS_SCRIPT_API_URL, {
@@ -41,7 +41,6 @@ async function apiFetch(action, payload = {}) {
     return await response.json();
   } catch (error) {
     console.error("Connection Error:", error);
-    alert("API Error [" + action + "]: Could not parse data stream. Please verify your Web App deployment settings are set to 'Anyone'.");
     return null;
   }
 }
@@ -99,27 +98,40 @@ async function submitNewPasswordData() {
 function cancelOtpVerificationFlow() { document.getElementById('otpVerificationBlock').classList.add('hidden'); }
 function triggerLogout() { localStorage.clear(); window.location.reload(); }
 
-// Dynamic Form Injections (Bypassing Race Conditions using an explicit async pipeline)
+// Dynamic Form Injections (Optimized Path Routing for GitHub Pages)
 async function loadWorkflowHtmlFiles() {
   const container = document.getElementById('dynamicFormContainer');
   const masterContainer = document.getElementById('view-product-master');
   if(!container) return;
 
+  // Dynamically calculate repository path base context
+  const getBasePath = () => {
+    const loc = window.location;
+    const pathSegments = loc.pathname.split('/');
+    // Handles subfolder hosting on github.io repos correctly
+    if (loc.hostname.includes('github.io') && pathSegments[1]) {
+      return '/' + pathSegments[1] + '/';
+    }
+    return '/';
+  };
+
+  const basePath = getBasePath();
+
   try {
     const [dispatchRes, invRes, rtoRes, masterRes] = await Promise.all([
-      fetch('dispatch.html').then(r => r.text()),
-      fetch('inventory.html').then(r => r.text()),
-      fetch('rto.html').then(r => r.text()),
-      fetch('master.html').then(r => r.text())
+      fetch(basePath + 'dispatch.html').then(r => { if(!r.ok) throw new Error(); return r.text(); }),
+      fetch(basePath + 'inventory.html').then(r => { if(!r.ok) throw new Error(); return r.text(); }),
+      fetch(basePath + 'rto.html').then(r => { if(!r.ok) throw new Error(); return r.text(); }),
+      fetch(basePath + 'master.html').then(r => { if(!r.ok) throw new Error(); return r.text(); })
     ]);
 
     container.innerHTML = dispatchRes + invRes + rtoRes;
     masterContainer.innerHTML = masterRes;
     
-    // Explicit Await: Assures markup strings are populated into the DOM completely before querying data lines
     await initFormInterceptorsAndDropdowns();
   } catch (err) {
     console.error("HTML Module Loading Failure:", err);
+    alert("Critical Layout Error: HTML file components could not be loaded from GitHub repository. Ensure 'dispatch.html', 'inventory.html', 'rto.html', and 'master.html' are named exactly in lowercase.");
   }
 }
 
@@ -233,6 +245,13 @@ function addInventoryItemRow(item='', bar='', sku='', b='', q='', box='', st='Pe
       </div>
     </div>`);
   buildDropdownDomTreeLists(id);
+}
+
+function initInventorySearchableDropdownEngine() {
+  var container = document.getElementById('inventoryItemsContainer');
+  if(container && container.children.length === 0) {
+    addInventoryItemRow();
+  }
 }
 
 async function handleInventorySubmit(e) {
