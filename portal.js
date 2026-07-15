@@ -43,7 +43,7 @@ async function apiFetch(action, payload) {
   }
 }
 
-// Dynamic Mobile Camera Barcode Scanner Initialization Rule
+// Mobile Camera Barcode Scanner Initialization Rule
 function openMobileCameraScanner(targetInputId) {
   var container = document.getElementById('qr-reader-container');
   if (!container) return;
@@ -56,7 +56,6 @@ function openMobileCameraScanner(targetInputId) {
 
   html5QrScanner = new Html5Qrcode("qr-reader");
   
-  // Enforces mobile environment environment camera tracking parameter constraints
   html5QrScanner.start(
     { facingMode: "environment" }, 
     { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -64,13 +63,12 @@ function openMobileCameraScanner(targetInputId) {
       var inputEl = document.getElementById(targetInputId);
       if (inputEl) {
         inputEl.value = decodedText.trim();
-        // Fire native event triggers to calculate form caches automatically
         inputEl.dispatchEvent(new Event('input', { bubbles: true }));
         inputEl.dispatchEvent(new Event('blur', { bubbles: true }));
       }
       closeGlobalCameraScanner();
     },
-    (errorMessage) => { /* Silent tracking logs error bypass */ }
+    (errorMessage) => { /* Silent tracking bypass */ }
   ).catch(err => {
     console.error("Camera Access Denied:", err);
     alert("Camera permission denied or camera device busy.");
@@ -101,7 +99,7 @@ async function handleLogin(e) {
     localStorage.setItem('current_view_target', 'entry-view');
     window.location.reload();
   } else { 
-    showMessage(res ? res.message : "Authentication error. Verify script deployment access configuration.", false); 
+    showMessage(res ? res.message : "Authentication error. Verify script deployment config.", false); 
     btn.disabled = false; btn.innerText = "Access Workspace"; 
   }
 }
@@ -138,40 +136,56 @@ async function submitNewPasswordData() {
 function cancelOtpVerificationFlow() { document.getElementById('otpVerificationBlock').classList.add('hidden'); }
 function triggerLogout() { localStorage.clear(); window.location.reload(); }
 
-// Self-Contained Layout Injector Engine (No external file fetches to prevent 404 Layout Error)
+// Complete Module Content View Injector Framework
 function loadWorkflowHtmlFiles() {
   const container = document.getElementById('dynamicFormContainer');
-  const masterContainer = document.getElementById('view-product-master');
   if(!container) return;
 
-  const dispatchHtmlStr = `<div id="b2bDispatchFormBlock" class="hidden"><h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Daily Execution Input Stream (Tab1)</h2><div id="liveDuplicateWarningBox" class="hidden mb-4 bg-red-100 border border-red-400 text-red-800 rounded-lg p-4 space-y-2"><strong class="text-sm font-bold">⚠️ DUPLICATE INVOICE DETECTED IN SYSTEM</strong><p class="text-xs">The invoice highlighted in red below already exists.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border border-red-200 rounded p-2.5 text-xs font-mono text-gray-700"><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Series ID</span> <span id="dupSeries" class="font-bold text-red-600"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">LR No.</span> <span id="dupLr"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Date</span> <span id="dupDate"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Transporter</span> <span id="dupTrans"></span></div></div></div><form id="entryForm" onsubmit="handleFormSubmit(event)" oninput="saveToLocalStorage()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="dateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Time Input Stamp *</label><input type="time" id="timeInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Department (Locked) *</label><input type="text" id="deptDisplayField" readonly value="B2B Dispatch" class="w-full p-2 border rounded-md bg-slate-100 font-semibold text-sm text-slate-700"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="transporterSelect" required onchange="toggleOtherInput(this, 'transporterOtherContainer', 'transporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select><div id="transporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="transporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 border-t pt-3"><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="vehicleNo" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Full Name *</label><input type="text" id="driverName" required placeholder="Enter Driver Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile Number *</label><input type="tel" id="driverMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm"></div></div><div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-sm font-bold text-slate-700 mb-3">Invoices Breakdown Log</h3><div id="invoiceContainer" class="space-y-3"></div><div class="flex justify-end mt-4 pt-2 border-t border-slate-200"><button type="button" onclick="addInvoiceRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">+ Add Invoice Row</button></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"><div><label class="block text-xs font-bold text-gray-600 mb-1">Pallet Count</label><input type="number" id="palletCount" min="0" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Loading Incharge *</label><select id="inchargeSelect" required onchange="toggleOtherInput(this, 'inchargeOtherContainer', 'inchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select><div id="inchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="inchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div></div><button type="submit" id="submitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Submit & Generate Gatepass</button></form></div>`;
-  const inventoryHtmlStr = `<div id="inventoryFormBlock" class="hidden"><h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Inventory Operations Stream (Tab4)</h2><form id="inventoryLogForm" onsubmit="handleInventorySubmit(event)" oninput="saveInventoryToCache()"><div class="bg-slate-100 p-4 rounded-xl border mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"><div class="col-span-1 sm:col-span-2 md:col-span-4 border-b pb-1 mb-1"><h4 class="text-xs font-bold text-slate-600 uppercase">🔗 Inward Shipment Header Parameters</h4></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="invDateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO / Invoice No *</label><input type="text" id="invPoInvoiceNo" required placeholder="Enter PO/Invoice ID" class="w-full p-2 border rounded-md text-sm bg-white font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Customer Name *</label><input type="text" id="invCustomerName" required placeholder="Enter Customer Name" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Inward Incharge *</label><select id="invInchargeSelect" required onchange="toggleOtherInput(this, 'invInchargeOtherContainer', 'invInchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select><div id="invInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="invInchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="invTransporterSelect" required onchange="toggleOtherInput(this, 'invTransporterOtherContainer', 'invTransporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select><div id="invTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="invTransporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle No *</label><input type="text" id="invVehicleNo" required placeholder="MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="invDriverName" required placeholder="Driver Full Name" class="w-full p-2 border rounded-md text-sm bg-white"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">Driver Number *</label><input type="tel" id="invDriverNumber" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">LR No *</label><div class="flex space-x-1"><input type="text" id="invLrNo" required placeholder="LR Number" class="w-full p-2 border rounded-md text-sm font-mono"><button type="button" onclick="openMobileCameraScanner('invLrNo')" class="bg-amber-500 text-slate-950 px-2 text-xs rounded font-bold">📷 Scan</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Qty *</label><input type="number" id="invPoTotalQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Box Qty *</label><input type="number" id="invPoTotalBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div></div><div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-sm font-bold text-slate-700 mb-3">Physical Inward Material Row Matrix</h3><div id="inventoryItemsContainer" class="space-y-4"></div><div class="flex justify-end mt-4 pt-2"><button type="button" onclick="addInventoryItemRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">+ Add Material Row</button></div></div><button type="submit" id="invSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Commit Material Logs to Tab4 Ledger</button></form></div>`;
-  const rtoHtmlStr = `<div id="rtoFormBlock" class="hidden"><div class="flex border-b border-gray-200 mb-6 bg-slate-100 p-1 rounded-lg max-w-md"><button type="button" id="rtoB2bToggleTab" onclick="switchRtoSubWorkflow('B2B')" class="w-1/2 text-center py-2 px-4 rounded-md text-xs font-bold uppercase transition-all bg-amber-500 text-slate-950 shadow-sm">📦 B2B Return</button><button type="button" id="rtoB2cToggleTab" onclick="switchRtoSubWorkflow('B2C')" class="w-1/2 text-center py-2 px-4 rounded-md text-xs font-bold uppercase transition-all text-slate-600">🛵 B2C Courier Return</button></div><div id="rtoB2bLayoutSection"><h2 class="text-base font-bold text-slate-700 mb-1">B2B Return Log Matrix (Tab5)</h2><form id="rtoB2bForm" onsubmit="handleRtoB2bSubmit(event)" oninput="saveRtoToCache()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="rtoB2bDate" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Invoice No. *</label><input type="text" id="rtoB2bInvoice" required placeholder="Invoice No" class="w-full p-2 border rounded-md text-sm font-mono"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">LR No. *</label><div class="flex space-x-1"><input type="text" id="rtoB2bLrNo" required placeholder="LR Tracking ID" class="w-full p-2 border rounded-md text-sm font-mono"><button type="button" onclick="openMobileCameraScanner('rtoB2bLrNo')" class="bg-amber-500 text-slate-950 px-2 text-xs rounded font-bold">📷 Scan</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Return Incharge *</label><select id="rtoB2bInchargeSelect" required onchange="toggleOtherInput(this, 'rtoB2bInchargeOtherContainer', 'rtoB2bInchargeOtherInput')" class="rto-inch-drop w-full p-2 border rounded-md text-sm"><option value="">Select Incharge</option></select><div id="rtoB2bInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2bInchargeOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"><div id="rtoTransDropDiv"><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="rtoB2bTransporterSelect" required onchange="toggleOtherInput(this, 'rtoB2bTransporterOtherContainer', 'rtoB2bTransporterOtherInput')" class="rto-trans-drop w-full p-2 border rounded-md text-sm"><option value="">Select Transporter</option></select><div id="rtoB2bTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2bTransporterOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Box Qty *</label><input type="number" id="rtoB2bBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="rtoB2bVehicle" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 border-t pt-3"><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="rtoB2bDriver" required placeholder="Driver Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile No. *</label><input type="tel" id="rtoB2bMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div></div><div class="mb-6"><label class="block text-xs font-bold text-red-600 mb-1">Operational Remark *</label><input type="text" id="rtoB2bRemark" required placeholder="Describe damages..." class="w-full p-2 border rounded-md text-sm border-slate-300"></div><button type="submit" id="rtoB2bSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm shadow">Log B2B Return Entry</button></form></div><div id="rtoB2cLayoutSection" class="hidden"><h2 class="text-base font-bold text-slate-700 mb-1">B2C Return Log Matrix (Tab6)</h2><form id="rtoB2cForm" onsubmit="handleRtoB2cSubmit(event)" oninput="saveRtoToCache()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="rtoB2cDate" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="rtoB2cVehicle" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Courier / Transporter *</label><select id="rtoB2cCourierSelect" required onchange="toggleOtherInput(this, 'rtoB2cCourierOtherContainer', 'rtoB2cCourierOtherInput')" class="rto-trans-drop w-full p-2 border rounded-md text-sm"><option value="">Select Courier Engine</option></select><div id="rtoB2cCourierOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2cCourierOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Return Incharge *</label><select id="rtoB2cInchargeSelect" required onchange="toggleOtherInput(this, 'rtoB2cInchargeOtherContainer', 'rtoB2cInchargeOtherInput')" class="rto-inch-drop w-full p-2 border rounded-md text-sm"><option value="">Select Incharge</option></select><div id="rtoB2cInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2cInchargeOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 border-t pt-3"><div id="rtoRiderNameDiv"><label class="block text-xs font-bold text-gray-600 mb-1">Delivery Rider Name *</label><input type="text" id="rtoB2cDriver" required placeholder="Rider Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile No. *</label><input type="tel" id="rtoB2cMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div></div><div class="mb-4"><label class="block text-xs font-bold text-red-600 mb-1">Global Return Operational Remark *</label><input type="text" id="rtoB2cCommonRemark" required value="No Damage" class="w-full p-2 border rounded-md text-sm"></div><div class="border-t border-b py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-xs font-bold text-slate-700 mb-2 uppercase">AWB Shipping Records Breakdown Grid</h3><div id="rtoB2cAwbContainer" class="space-y-2.5"></div><div class="flex justify-end mt-3"><button type="button" onclick="addRtoB2cAwbRow()" class="bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-xs transition">+ Add AWB Code Row</button></div></div><button type="submit" id="rtoB2cSubmitBtn" class="w-full bg-amber-500 text-slate-950 py-3 rounded-md font-bold text-sm tracking-wide shadow">Log B2C Return Entries</button></form></div></div>`;
-  const masterHtmlStr = `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-3"><div><h2 class="text-lg font-bold text-slate-700">Central Product Master Repository (Tab3) <span id="pmTotalCountBadge" class="ml-2 bg-amber-500 text-slate-950 font-mono text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span></h2><p class="text-xs text-slate-400">View SKU catalogs and upload master logs.</p></div><div class="flex items-center space-x-2"><label class="bg-emerald-600 text-white font-bold text-xs py-2 px-3 rounded shadow transition cursor-pointer">📥 Upload Excel CSV<input type="file" id="excelCsvFileInput" accept=".csv" onchange="handleExcelCsvImport(this)" class="hidden"></label><button onclick="downloadProductMasterAsCsv()" class="bg-blue-600 text-white font-bold text-xs py-2 px-3 rounded shadow">📤 Download Catalog</button><button onclick="toggleAddProductModal(true)" class="bg-amber-500 text-slate-950 font-bold text-xs py-2 px-3 rounded shadow">+ Register Item</button></div></div><div class="flex flex-col sm:flex-row items-center gap-2"><div class="w-full"><input type="text" id="pmSearchQuery" onkeyup="filterProductMasterViewTable()" placeholder="Search Item Master by Name, SKU, or Barcode..." class="w-full p-2 border rounded text-sm font-medium bg-white"></div><div class="w-full sm:w-48 flex items-center space-x-1.5"><label class="text-xs font-bold text-slate-500 whitespace-nowrap">View Limit:</label><select id="pmViewLimitSelect" onchange="filterProductMasterViewTable()" class="w-full p-2 border rounded text-sm bg-white text-gray-700"><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="200" selected>200 Rows</option><option value="500">500 Rows</option></select></div></div><div class="overflow-x-auto border rounded-lg shadow-xs"><table class="min-w-full divide-y text-xs text-left"><thead class="bg-slate-800 text-white font-semibold uppercase text-[10px]"><tr><th class="px-4 py-3">Item Barcode</th><th class="px-4 py-3">SKU Code</th><th class="px-4 py-3">Item Description Name</th><th class="px-4 py-3">UOM</th><th class="px-4 py-3">Pack Size</th></tr></thead><tbody id="productMasterTableBody" class="divide-y bg-white text-gray-600"></tbody></table></div></div>`;
-
-  container.innerHTML = dispatchHtmlStr + inventoryHtmlStr + rtoHtmlStr;
-  masterContainer.innerHTML = masterHtmlStr;
+  // Forms Markup Injections strings
+  const dispatchHtmlStr = `<div id="b2bDispatchFormBlock" class="hidden"><h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Daily Execution Input Stream (Tab1)</h2><div id="liveDuplicateWarningBox" class="hidden mb-4 bg-red-100 border border-red-400 text-red-800 rounded-lg p-4 space-y-2"><strong class="text-sm font-bold">⚠️ DUPLICATE INVOICE DETECTED IN SYSTEM</strong><p class="text-xs">The invoice highlighted in red below already exists.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border border-red-200 rounded p-2.5 text-xs font-mono text-gray-700"><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Series ID</span> <span id="dupSeries" class="font-bold text-red-600"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">LR No.</span> <span id="dupLr"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Date</span> <span id="dupDate"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Transporter</span> <span id="dupTrans"></span></div></div></div><form id="entryForm" onsubmit="handleFormSubmit(event)" oninput="saveToLocalStorage()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="dateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Time Input Stamp *</label><input type="time" id="timeInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Department (Locked) *</label><input type="text" id="deptDisplayField" readonly value="B2B Dispatch" class="w-full p-2 border rounded-md bg-slate-100 font-semibold text-sm text-slate-700"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="transporterSelect" required onchange="toggleOtherInput(this, 'transporterOtherContainer', 'transporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select><div id="transporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="transporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 border-t pt-3"><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="vehicleNo" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Full Name *</label><input type="text" id="driverName" required placeholder="Enter Driver Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile Number *</label><input type="tel" id="driverMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm"></div></div><div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-sm font-bold text-slate-700 mb-3">Invoices Breakdown Log</h3><div id="invoiceContainer" class="space-y-3"></div><div class="flex justify-end mt-4 pt-2 border-t border-slate-200"><button type="button" onclick="addInvoiceRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">+ Add Invoice Row</button></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"><div><label class="block text-xs font-bold text-gray-600 mb-1">Pallet Count</label><input type="number" id="palletCount" min="0" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Loading Incharge *</label><select id="inchargeSelect" required onchange="toggleOtherInput(this, 'inchargeOtherContainer', 'inchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select><div id="inchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="inchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div></div><button type="submit" id="submitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Submit & Generate Gatepass</button></form></div>`;
+  const inventoryHtmlStr = `<div id="inventoryFormBlock" class="hidden"><h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Inventory Operations Stream (Tab4)</h2><form id="inventoryLogForm" onsubmit="handleInventorySubmit(event)" oninput="saveInventoryToCache()"><div class="bg-slate-100 p-4 rounded-xl border mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"><div class="col-span-1 sm:col-span-2 md:col-span-4 border-b pb-1 mb-1"><h4 class="text-xs font-bold text-slate-600 uppercase">🔗 Inward Shipment Header Parameters</h4></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="invDateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO / Invoice No *</label><input type="text" id="invPoInvoiceNo" required placeholder="Enter PO/Invoice ID" class="w-full p-2 border rounded-md text-sm bg-white font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Customer Name *</label><input type="text" id="invCustomerName" required placeholder="Enter Customer Name" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Inward Incharge *</label><select id="invInchargeSelect" required onchange="toggleOtherInput(this, 'invInchargeOtherContainer', 'invInchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select><div id="invInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="invInchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="invTransporterSelect" required onchange="toggleOtherInput(this, 'invTransporterOtherContainer', 'invTransporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select><div id="invTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="invTransporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle No *</label><input type="text" id="invVehicleNo" required placeholder="MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="invDriverName" required placeholder="Driver Full Name" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Number *</label><input type="tel" id="invDriverNumber" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">LR No *</label><div class="flex space-x-1"><input type="text" id="invLrNo" required placeholder="LR Number" class="w-full p-2 border rounded-md text-sm font-mono"><button type="button" onclick="openMobileCameraScanner('invLrNo')" class="bg-amber-500 text-slate-950 px-2 text-xs rounded font-bold">📷 Scan</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Qty *</label><input type="number" id="invPoTotalQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Box Qty *</label><input type="number" id="invPoTotalBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div></div><div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-sm font-bold text-slate-700 mb-3">Physical Inward Material Row Matrix</h3><div id="inventoryItemsContainer" class="space-y-4"></div><div class="flex justify-end mt-4 pt-2"><button type="button" onclick="addInventoryItemRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">+ Add Material Row</button></div></div><button type="submit" id="invSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Commit Material Logs to Tab4 Ledger</button></form></div>`;
+  const rtoHtmlStr = `<div id="rtoFormBlock" class="hidden"><div class="flex border-b border-gray-200 mb-6 bg-slate-100 p-1 rounded-lg max-w-md"><button type="button" id="rtoB2bToggleTab" onclick="switchRtoSubWorkflow('B2B')" class="w-1/2 text-center py-2 px-4 rounded-md text-xs font-bold uppercase transition-all bg-amber-500 text-slate-950 shadow-sm">📦 B2B Return</button><button type="button" id="rtoB2cToggleTab" onclick="switchRtoSubWorkflow('B2C')" class="w-1/2 text-center py-2 px-4 rounded-md text-xs font-bold uppercase transition-all text-slate-600">🛵 B2C Courier Return</button></div><div id="rtoB2bLayoutSection"><h2 class="text-base font-bold text-slate-700 mb-1">B2B Return Log Matrix (Tab5)</h2><form id="rtoB2bForm" onsubmit="handleRtoB2bSubmit(event)" oninput="saveRtoToCache()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="rtoB2bDate" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Invoice No. *</label><input type="text" id="rtoB2bInvoice" required placeholder="Invoice No" class="w-full p-2 border rounded-md text-sm font-mono"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">LR No. *</label><div class="flex space-x-1"><input type="text" id="rtoB2bLrNo" required placeholder="LR Tracking ID" class="w-full p-2 border rounded-md text-sm font-mono"><button type="button" onclick="openMobileCameraScanner('rtoB2bLrNo')" class="bg-amber-500 text-slate-950 px-2 text-xs rounded font-bold">📷 Scan</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Return Incharge *</label><select id="rtoB2bInchargeSelect" required onchange="toggleOtherInput(this, 'rtoB2bInchargeOtherContainer', 'rtoB2bInchargeOtherInput')" class="rto-inch-drop w-full p-2 border rounded-md text-sm"><option value="">Select Incharge</option></select><div id="rtoB2bInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2bInchargeOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"><div id="rtoTransDropDiv"><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="rtoB2bTransporterSelect" required onchange="toggleOtherInput(this, 'rtoB2bTransporterOtherContainer', 'rtoB2bTransporterOtherInput')" class="rto-trans-drop w-full p-2 border rounded-md text-sm"><option value="">Select Transporter</option></select><div id="rtoB2bTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2bTransporterOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Box Qty *</label><input type="number" id="rtoB2bBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="rtoB2bVehicle" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 border-t pt-3"><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="rtoB2bDriver" required placeholder="Driver Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile No. *</label><input type="tel" id="rtoB2bMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div></div><div class="mb-6"><label class="block text-xs font-bold text-red-600 mb-1">Operational Remark *</label><input type="text" id="rtoB2bRemark" required placeholder="Describe damages..." class="w-full p-2 border rounded-md text-sm border-slate-300"></div><button type="submit" id="rtoB2bSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Log B2B Return Entry</button></form></div><div id="rtoB2cLayoutSection" class="hidden"><h2 class="text-base font-bold text-slate-700 mb-1">B2C Return Log Matrix (Tab6)</h2><form id="rtoB2cForm" onsubmit="handleRtoB2cSubmit(event)" oninput="saveRtoToCache()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="rtoB2cDate" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="rtoB2cVehicle" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Courier / Transporter *</label><select id="rtoB2cCourierSelect" required onchange="toggleOtherInput(this, 'rtoB2cCourierOtherContainer', 'rtoB2cCourierOtherInput')" class="rto-trans-drop w-full p-2 border rounded-md text-sm"><option value="">Select Courier Engine</option></select><div id="rtoB2cCourierOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2cCourierOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Return Incharge *</label><select id="rtoB2cInchargeSelect" required onchange="toggleOtherInput(this, 'rtoB2cInchargeOtherContainer', 'rtoB2cInchargeOtherInput')" class="rto-inch-drop w-full p-2 border rounded-md text-sm"><option value="">Select Incharge</option></select><div id="rtoB2cInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2cInchargeOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 border-t pt-3"><div id="rtoRiderNameDiv"><label class="block text-xs font-bold text-gray-600 mb-1">Delivery Rider Name *</label><input type="text" id="rtoB2cDriver" required placeholder="Rider Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile No. *</label><input type="tel" id="rtoB2cMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div></div><div class="mb-4"><label class="block text-xs font-bold text-red-600 mb-1">Global Return Operational Remark *</label><input type="text" id="rtoB2cCommonRemark" required value="No Damage" class="w-full p-2 border rounded-md text-sm"></div><div class="border-t border-b py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-xs font-bold text-slate-700 mb-2 uppercase">AWB Shipping Records Breakdown Grid</h3><div id="rtoB2cAwbContainer" class="space-y-2.5"></div><div class="flex justify-end mt-3"><button type="button" onclick="addRtoB2cAwbRow()" class="bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-xs transition">+ Add AWB Code Row</button></div></div><button type="submit" id="rtoB2cSubmitBtn" class="w-full bg-amber-500 text-slate-950 py-3 rounded-md font-bold text-sm tracking-wide shadow">Log B2C Return Entries</button></form></div></div>`;
   
+  container.innerHTML = dispatchHtmlStr + inventoryHtmlStr + rtoHtmlStr;
+  
+  // Dynamic Master View block mounting
+  const masterContainer = document.getElementById('view-product-master');
+  if(masterContainer) {
+    masterContainer.innerHTML = `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-3"><div><h2 class="text-lg font-bold text-slate-700">Central Product Master Repository (Tab3) <span id="pmTotalCountBadge" class="ml-2 bg-amber-500 text-slate-950 font-mono text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span></h2><p class="text-xs text-slate-400">View SKU catalogs and upload master logs.</p></div><div class="flex items-center space-x-2"><label class="bg-emerald-600 text-white font-bold text-xs py-2 px-3 rounded shadow transition cursor-pointer">📥 Upload Excel CSV<input type="file" id="excelCsvFileInput" accept=".csv" onchange="handleExcelCsvImport(this)" class="hidden"></label><button onclick="downloadProductMasterAsCsv()" class="bg-blue-600 text-white font-bold text-xs py-2 px-3 rounded shadow">📤 Download Catalog</button><button onclick="toggleAddProductModal(true)" class="bg-amber-500 text-slate-950 font-bold text-xs py-2 px-3 rounded shadow">+ Register Item</button></div></div><div class="flex flex-col sm:flex-row items-center gap-2"><div class="w-full"><input type="text" id="pmSearchQuery" onkeyup="filterProductMasterViewTable()" placeholder="Search Item Master by Name, SKU, or Barcode..." class="w-full p-2 border rounded text-sm font-medium bg-white"></div><div class="w-full sm:w-48 flex items-center space-x-1.5"><label class="text-xs font-bold text-slate-500 whitespace-nowrap">View Limit:</label><select id="pmViewLimitSelect" onchange="filterProductMasterViewTable()" class="w-full p-2 border rounded text-sm bg-white text-gray-700"><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="200" selected>200 Rows</option><option value="500">500 Rows</option></select></div></div><div class="overflow-x-auto border rounded-lg shadow-xs"><table class="min-w-full divide-y text-xs text-left"><thead class="bg-slate-800 text-white font-semibold uppercase text-[10px]"><tr><th class="px-4 py-3">Item Barcode</th><th class="px-4 py-3">SKU Code</th><th class="px-4 py-3">Item Description Name</th><th class="px-4 py-3">UOM</th><th class="px-4 py-3">Pack Size</th></tr></thead><tbody id="productMasterTableBody" class="divide-y bg-white text-gray-600"></tbody></table></div></div>`;
+  }
+
+  // Safe Asynchronous Dropdown Population Handshake
   initFormInterceptorsAndDropdowns();
 }
 
-// 1. FIXED DASHBOARD DATA FETCH: Mapped string query context safely
+// 1. FIXED DASHBOARD DATA FETCH ENGINE: Passed exact text mapping references
 async function fetchLiveDashboardDataRecords() {
-  var body = document.getElementById('dataTableBody'); if(!body) return;
+  var body = document.getElementById('dataTableBody'); 
+  if(!body) return;
   body.innerHTML = `<tr><td colspan="11" class="text-center p-4">Syncing workspace records...</td></tr>`;
   
-  // Bug Fix: Passed workflowDept directly as parameters to prevent mapping breaks
+  var currentTabLabel = (workflowDept === "B2B Dispatch") ? "Tab1" : (workflowDept === "Inventory Logging" ? "Tab4" : "Tab5/Tab6");
+  var dashTabTitle = document.getElementById('dashTabTitle');
+  if (dashTabTitle) dashTabTitle.innerText = currentTabLabel;
+  
+  var thSeriesId = document.getElementById('thSeriesId');
+  if (thSeriesId) thSeriesId.innerText = (workflowDept === "B2B Dispatch") ? "Gatepass ID" : "Gate Entry No";
+
   const data = await apiFetch("getDashboardDataByWorkspace", workflowDept);
-  if(data && Array.isArray(data)) { masterData = data; renderTable(data); }
-  else { body.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No logs found inside spreadsheet matrix context.</td></tr>`; }
+  if(data && Array.isArray(data)) { 
+    masterData = data; 
+    renderTable(data); 
+  } else { 
+    body.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No active operational logs inside ${currentTabLabel} database.</td></tr>`; 
+  }
 }
 
 function renderTable(data) {
   var b = document.getElementById('dataTableBody'); b.innerHTML = "";
-  if (!data || data.length === 0) { b.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No active records matched.</td></tr>`; return; }
+  if (!data || data.length === 0) { b.innerHTML = `<tr><td colspan="11" class="text-center p-4 text-gray-400">No active records found matching criteria.</td></tr>`; return; }
   document.getElementById('rowCountLabel').innerText = data.length;
   data.forEach(r => {
-    b.insertAdjacentHTML('beforeend', `<tr class="text-xs hover:bg-slate-50"><td class="px-3 py-2 font-bold font-mono">${r.seriesNo}</td><td class="px-3 py-2">${r.date} @ ${r.time}</td><td class="px-3 py-2 text-amber-600 font-bold">${r.dept}</td><td class="px-3 py-2">${r.transporter}</td><td class="px-3 py-2 font-mono font-bold">${r.vehicleNo}</td><td class="px-3 py-2">${r.driverName} <br><span class="text-[10px] text-gray-400">${r.driverMobile || ''}</span></td><td class="px-3 py-2 font-mono">${r.invoice}</td><td class="px-3 py-2 text-center font-bold">${r.boxes}</td><td class="px-3 py-2 max-w-[120px] truncate">${r.remark || r.lr}</td><td class="px-3 py-2 text-center font-bold">${r.pallets || r.status}</td><td class="px-3 py-2">${r.incharge}</td></tr>`);
+    b.insertAdjacentHTML('beforeend', `<tr class="text-xs hover:bg-slate-50"><td class="px-3 py-2 font-bold font-mono ${r.seriesNo.startsWith('RB')?'text-blue-600':(r.seriesNo.startsWith('IN')?'text-emerald-600':'')}">${r.seriesNo}</td><td class="px-3 py-2">${r.date} @ ${r.time}</td><td class="px-3 py-2 text-amber-600 font-bold">${r.dept}</td><td class="px-3 py-2">${r.transporter}</td><td class="px-3 py-2 font-mono font-bold">${r.vehicleNo}</td><td class="px-3 py-2">${r.driverName} <br><span class="text-[10px] text-gray-400">${r.driverMobile || ''}</span></td><td class="px-3 py-2 font-mono">${r.invoice}</td><td class="px-3 py-2 text-center font-bold">${r.boxes}</td><td class="px-3 py-2 max-w-[120px] truncate" title="${r.remark || r.lr || ''}">${r.remark || r.lr}</td><td class="px-3 py-2 text-center font-bold">${r.pallets || r.status}</td><td class="px-3 py-2">${r.incharge}</td></tr>`);
   });
 }
 
@@ -180,7 +194,6 @@ function addInvoiceRow(n='', b='', l='', r='') {
   var rowCount = container.children.length + 1;
   var id = 'row_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
   
-  // 4. ADDED NATIVE CAMERA SCANNER HANDLER: Integrated button row setup
   container.insertAdjacentHTML('beforeend', `
     <div id="${id}" class="grid grid-cols-1 md:grid-cols-4 gap-2 bg-white p-2.5 border rounded shadow-xs relative">
       <div><label class="block text-[10px] font-bold text-gray-400">Invoice Num *</label><input type="text" value="${n}" required onblur="executeLiveDuplicateCheck(this)" class="invoice-num w-full p-1.5 border text-sm rounded"></div>
@@ -201,7 +214,6 @@ function addRtoB2cAwbRow(awbVal='') {
   var c = document.getElementById('rtoB2cAwbContainer'); if(!c) return;
   var id = 'awb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
   
-  // 4. ADDED NATIVE CAMERA SCANNER HANDLER FOR B2C AWBS
   c.insertAdjacentHTML('beforeend', `
     <div id="${id}" class="flex items-center space-x-2 bg-white p-2 border rounded">
       <div class="w-full">
@@ -215,7 +227,7 @@ function addRtoB2cAwbRow(awbVal='') {
     </div>`);
 }
 
-// 3. CACHE SECURITY ENGINES: Restores typed draft parameters upon tab reloads
+// 3. PERSISTENT CACHE HANDLERS: Form data preservation on reloads
 function saveToLocalStorage() {
   if(workflowDept !== "B2B Dispatch") return;
   var rows = document.getElementById('invoiceContainer')?.children || [];
@@ -328,7 +340,7 @@ function loadRtoCacheData() {
   }
 }
 
-// 2. FIXED PRINTING Canvas LAYOUT: Hardcoded structure templates to exactly match your screenshots format rules
+// 2. FIXED PRINTING RECEIPT LAYOUTS: Exactly mirroring your specified templates format rules
 function renderPrintLayout(d, id) {
   document.getElementById('pdfSeries').innerText = id; 
   document.getElementById('pdfDate').innerText = d.date || new Date().toISOString().split('T')[0]; 
@@ -347,8 +359,7 @@ function renderPrintLayout(d, id) {
   var palletCont = document.getElementById('pdfPalletContainer');
   var invMetaCont = document.getElementById('pdfInvMetaContainer');
 
-  if (d.department === "Inventory Inward") {
-    // Inventory Inward (Tab4 format layout)
+  if (d.department === "Inventory Inward" || d.department === "Inventory Logging") {
     pdfTitle.innerText = "QUICKSHIFT - INVENTORY INWARD GATE ENTRY"; pdfSeriesLabel.innerText = "Gate Entry No:";
     if(palletCont) palletCont.classList.add('hidden');
     if(invMetaCont) {
@@ -359,196 +370,132 @@ function renderPrintLayout(d, id) {
     thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-bold"><th class="border border-black p-2 text-center">Sr No.</th><th class="border border-black p-2">Material Item Name Description</th><th class="border border-black p-2 font-mono">Barcode ID</th><th class="border border-black p-2 font-mono">SKU Code</th><th class="border border-black p-2 text-center">Qty Units</th><th class="border border-black p-2 text-center">Box Count</th></tr>`;
     
     var tQty = 0, tBox = 0;
-    d.invoices.forEach((inv, i) => {
-      var q = parseInt(inv.physicalQuantity || inv.qty || 0, 10);
-      var bx = parseInt(inv.boxCount || inv.box || 0, 10);
-      tQty += q; tBox += bx;
-      bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-medium">${inv.itemName || 'N/A'}</td><td class="border border-black p-2 font-mono">${inv.barcode || '—'}</td><td class="border border-black p-2 font-mono font-bold">${inv.skuCode || '—'}</td><td class="border border-black p-2 text-center font-bold">${q}</td><td class="border border-black p-2 text-center font-bold">${bx}</td></tr>`);
-    });
+    if (d.invoices && d.invoices.forEach) {
+      d.invoices.forEach((inv, i) => {
+        var q = parseInt(inv.physicalQuantity || inv.qty || 0, 10);
+        var bx = parseInt(inv.boxCount || inv.box || 0, 10);
+        tQty += q; tBox += bx;
+        bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-medium">${inv.itemName || 'N/A'}</td><td class="border border-black p-2 font-mono">${inv.barcode || '—'}</td><td class="border border-black p-2 font-mono font-bold">${inv.skuCode || '—'}</td><td class="border border-black p-2 text-center font-bold">${q}</td><td class="border border-black p-2 text-center font-bold">${bx}</td></tr>`);
+      });
+    }
     bEl.insertAdjacentHTML('beforeend', `<tr class="bg-gray-50 font-black"><td colspan="4" class="border border-black p-2 text-right uppercase">AGGREGATE TOTALS:</td><td class="border border-black p-2 text-center underline text-sm">${tQty}</td><td class="border border-black p-2 text-center underline text-sm">${tBox}</td></tr>`);
     
   } else if (d.department === "B2C Return") {
-    // B2C Returns (Tab6 format layout)
     pdfTitle.innerText = "QUICKSHIFT - B2C RETURN GATE ENTRY"; pdfSeriesLabel.innerText = "Gate Entry No:";
-    if(palletCont) palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = "0";
+    if(palletCont) { palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = "0"; }
     if(invMetaCont) invMetaCont.classList.add('hidden');
     thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-bold"><th class="border border-black p-2 w-12 text-center">Sr No.</th><th class="border border-black p-2">Invoice</th><th class="border border-black p-2 font-mono">AWB No.</th><th class="border border-black p-2">Remark</th></tr>`;
     
-    d.invoices.forEach((inv, i) => {
-      bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-mono">${inv.invoiceNum}</td><td class="border border-black p-2 font-mono font-bold">${inv.invoiceNum}</td><td class="border border-black p-2 text-xs">${d.globalRemark || "No Damage"}</td></tr>`);
-    });
-    bEl.insertAdjacentHTML('beforeend', `<tr class="bg-gray-50 font-black"><td colspan="2" class="border border-black p-2 text-right uppercase">TOTAL PACK COUNT:</td><td class="border border-black p-2 text-center underline text-sm">${d.invoices.length}</td><td class="border border-black p-2"></td></tr>`);
+    if (d.invoices && d.invoices.forEach) {
+      d.invoices.forEach((inv, i) => {
+        bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-mono">${inv.invoiceNum}</td><td class="border border-black p-2 font-mono font-bold">${inv.invoiceNum}</td><td class="border border-black p-2 text-xs">${d.globalRemark || d.remark || "No Damage"}</td></tr>`);
+      });
+    }
+    bEl.insertAdjacentHTML('beforeend', `<tr class="bg-gray-50 font-black"><td colspan="2" class="border border-black p-2 text-right uppercase">TOTAL PACK COUNT:</td><td class="border border-black p-2 text-center underline text-sm">${d.invoices ? d.invoices.length : 0}</td><td class="border border-black p-2"></td></tr>`);
 
   } else if (d.department === "B2B Return") {
-    // B2B Returns (Tab5 format layout)
     pdfTitle.innerText = "QUICKSHIFT - B2B RETURN GATE ENTRY"; pdfSeriesLabel.innerText = "Gate Entry No:";
-    if(palletCont) palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = "0";
+    if(palletCont) { palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = "0"; }
     if(invMetaCont) invMetaCont.classList.add('hidden');
     thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-bold"><th class="border border-black p-2 w-12 text-center">Sr No.</th><th class="border border-black p-2">Invoice</th><th class="border border-black p-2 text-center">Box Count</th><th class="border border-black p-2 font-mono">LR / AWB</th><th class="border border-black p-2">Remark</th></tr>`;
     
     var totalBoxes = 0;
-    d.invoices.forEach((inv, i) => {
-      var bx = parseInt(inv.boxCount || 0, 10); totalBoxes += bx;
-      bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-mono">${inv.invoiceNum}</td><td class="border border-black p-2 text-center font-bold">${bx}</td><td class="border border-black p-2 font-mono">${inv.lrNo || 'N/A'}</td><td class="border border-black p-2 text-xs">${d.globalRemark || "No Remark"}</td></tr>`);
-    });
+    if (d.invoices && d.invoices.forEach) {
+      d.invoices.forEach((inv, i) => {
+        var bx = parseInt(inv.boxCount || 0, 10); totalBoxes += bx;
+        bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-mono">${inv.invoiceNum}</td><td class="border border-black p-2 text-center font-bold">${bx}</td><td class="border border-black p-2 font-mono">${inv.lrNo || 'N/A'}</td><td class="border border-black p-2 text-xs">${d.globalRemark || d.remark || "No Remark"}</td></tr>`);
+      });
+    }
     bEl.insertAdjacentHTML('beforeend', `<tr class="bg-gray-50 font-black"><td colspan="2" class="border border-black p-2 text-right uppercase">TOTAL PACK COUNT:</td><td class="border border-black p-2 text-center underline text-sm">${totalBoxes}</td><td colspan="2" class="border border-black p-2"></td></tr>`);
 
   } else {
-    // B2B Dispatch (Tab1 format layout)
     pdfTitle.innerText = "QUICKSHIFT - B2B DISPATCH GATEPASS"; pdfSeriesLabel.innerText = "Series Token ID:";
-    if(palletCont) palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = d.palletCount || "0";
+    if(palletCont) { palletCont.classList.remove('hidden'); document.getElementById('pdfPallets').innerText = d.palletCount || "0"; }
     if(invMetaCont) invMetaCont.classList.add('hidden');
     thEl.innerHTML = `<tr class="bg-gray-100 border-b border-black font-bold"><th class="border border-black p-2 w-12 text-center">Sr No.</th><th class="border border-black p-2">Invoice</th><th class="border border-black p-2 text-center">Box Count</th><th class="border border-black p-2 font-mono">LR / AWB</th><th class="border border-black p-2">Remark</th></tr>`;
     
     var totalBoxes = 0;
-    d.invoices.forEach((inv, i) => {
-      var bx = parseInt(inv.boxCount || inv.box || 0, 10); totalBoxes += bx;
-      bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-mono">${inv.invoiceNum}</td><td class="border border-black p-2 text-center font-bold">${bx}</td><td class="border border-black p-2 font-mono">${inv.lrNo || 'N/A'}</td><td class="border border-black p-2 text-xs">${inv.remark || ''}</td></tr>`);
-    });
+    if (d.invoices && d.invoices.forEach) {
+      d.invoices.forEach((inv, i) => {
+        var bx = parseInt(inv.boxCount || inv.box || 0, 10); totalBoxes += bx;
+        bEl.insertAdjacentHTML('beforeend', `<tr><td class="border border-black p-2 text-center">${i+1}</td><td class="border border-black p-2 font-mono">${inv.invoiceNum}</td><td class="border border-black p-2 text-center font-bold">${bx}</td><td class="border border-black p-2 font-mono">${inv.lrNo || 'N/A'}</td><td class="border border-black p-2 text-xs">${inv.remark || ''}</td></tr>`);
+      });
+    }
     bEl.insertAdjacentHTML('beforeend', `<tr class="bg-gray-50 font-black"><td colspan="2" class="border border-black p-2 text-right uppercase">TOTAL PACK COUNT:</td><td class="border border-black p-2 text-center underline text-sm">${totalBoxes}</td><td colspan="2" class="border border-black p-2"></td></tr>`);
   }
   
   document.getElementById('printArea').classList.remove('hidden'); window.scrollTo(0, document.getElementById('printArea').offsetTop);
 }
 
+// 1. FIXED VIEW CONTROLLERS MODULE SWITCH: Restored dynamic layout panel swaps responsive actions
+function switchView(viewKey) {
+  currentViewTarget = viewKey; localStorage.setItem('current_view_target', viewKey);
+  
+  var statusMsg = document.getElementById('statusMsg');
+  if (statusMsg) statusMsg.classList.add('hidden');
+  document.getElementById('printArea').classList.add('hidden');
+  
+  // Dynamic hide all panels safely
+  document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('#sidebarMenu button').forEach(btn => btn.classList.remove('text-amber-400', 'font-bold'));
+  
+  if (viewKey === 'entry-view') {
+    document.getElementById('view-entry').classList.remove('hidden');
+    if(workflowDept === "B2B Dispatch") document.getElementById('sub-b2b-entry')?.classList.add('text-amber-400', 'font-bold');
+    if(workflowDept === "Inventory Logging") document.getElementById('sub-inv-entry')?.classList.add('text-amber-400', 'font-bold');
+    if(workflowDept === "RTO (IN)") document.getElementById('sub-rto-entry')?.classList.add('text-amber-400', 'font-bold');
+  } else if (viewKey === 'product-master-view') {
+    document.getElementById('view-product-master').classList.remove('hidden');
+    document.getElementById('sub-inv-pm')?.classList.add('text-amber-400', 'font-bold');
+  } else if (viewKey === 'reprint-view') {
+    document.getElementById('view-reprint').classList.remove('hidden');
+    document.getElementById('sub-b2b-reprint')?.classList.add('text-amber-400', 'font-bold');
+    adjustReprintLabelsText();
+  } else if (viewKey === 'correction-view') {
+    document.getElementById('view-correction').classList.remove('hidden');
+    document.getElementById('sub-b2b-correction')?.classList.add('text-amber-400', 'font-bold');
+    updateCorrectionLabels();
+  } else if (viewKey === 'dashboard-view') {
+    document.getElementById('view-dashboard').classList.remove('hidden');
+    if(workflowDept === "B2B Dispatch") document.getElementById('sub-b2b-dashboard')?.classList.add('text-amber-400', 'font-bold');
+    if(workflowDept === "Inventory Logging") document.getElementById('sub-inv-dashboard')?.classList.add('text-amber-400', 'font-bold');
+    if(workflowDept === "RTO (IN)") document.getElementById('sub-rto-dashboard')?.classList.add('text-amber-400', 'font-bold');
+  }
+}
+
+function addInventoryItemRow(item='', bar='', sku='', b='', q='', box='', st='Pending') {
+  var container = document.getElementById('inventoryItemsContainer'); if(!container) return;
+  var id = 'invRow_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+  container.insertAdjacentHTML('beforeend', `
+    <div id="${id}" class="bg-white p-3 border rounded-lg shadow-xs space-y-2 relative" data-selected-item="${item}" data-selected-barcode="${bar}" data-selected-sku="${sku}">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div><label class="text-[10px] font-bold text-gray-400">Barcode *</label><input type="text" value="${bar}" onfocus="showInvSearchDropdown('${id}', 'barcode')" onkeyup="filterInvSearchDropdown('${id}', 'barcode')" class="inv-barcode-search-input w-full p-1.5 border text-sm rounded"><div class="inv-barcode-dropdown-list hidden absolute max-h-40 overflow-y-auto bg-white border z-50 text-xs w-full"></div></div>
+        <div><label class="text-[10px] font-bold text-gray-400">Item Name *</label><input type="text" value="${item}" onfocus="showInvSearchDropdown('${id}', 'item')" onkeyup="filterInvSearchDropdown('${id}', 'item')" class="inv-item-search-input w-full p-1.5 border text-sm rounded"><div class="inv-item-dropdown-list hidden absolute max-h-40 overflow-y-auto bg-white border z-50 text-xs w-full"></div></div>
+        <div><label class="text-[10px] font-bold text-gray-400">SKU Code *</label><input type="text" value="${sku}" onfocus="showInvSearchDropdown('${id}', 'sku')" onkeyup="filterInvSearchDropdown('${id}', 'sku')" class="inv-sku-search-input w-full p-1.5 border text-sm rounded"><div class="inv-sku-dropdown-list hidden absolute max-h-40 overflow-y-auto bg-white border z-50 text-xs w-full"></div></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+        <div><label class="text-[10px] font-bold text-gray-400">Batch *</label><input type="text" value="${b}" required class="inv-batch-no w-full p-1.5 border text-sm font-mono"></div>
+        <div><label class="text-[10px] font-bold text-gray-400">Qty *</label><input type="number" value="${q}" required class="inv-total-qty w-full p-1.5 border text-sm font-bold"></div>
+        <div><label class="text-[10px] font-bold text-gray-400">Boxes *</label><input type="number" value="${box}" required class="inv-no-of-box w-full p-1.5 border text-sm"></div>
+        <div><label class="text-[10px] font-bold text-gray-400">Status *</label><select class="inv-status w-full p-1.5 border text-sm"><option value="Pending" ${st==='Pending'?'selected':''}>Pending</option><option value="Closed" ${st==='Closed'?'selected':''}>Closed</option></select></div>
+      </div>
+      ${container.children.length > 0 ? `<button type="button" onclick="document.getElementById('${id}').remove(); saveInventoryToCache();" class="absolute -top-1 -right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center shadow-sm">✕</button>` : ''}
+    </div>`);
+  buildDropdownDomTreeLists(id);
+}
+
 // Global Trigger Bindings Hook for input drafts preservation on window exits
 window.addEventListener('pagehide', () => { saveToLocalStorage(); saveInventoryToCache(); saveRtoToCache(); });
 
-function loadWorkflowHtmlFiles() {
-  const container = document.getElementById('dynamicFormContainer');
-  const masterContainer = document.getElementById('view-product-master');
-  if(!container) return;
-
-  const dispatchHtmlStr = `<div id="b2bDispatchFormBlock" class="hidden"><h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Daily Execution Input Stream (Tab1)</h2><div id="liveDuplicateWarningBox" class="hidden mb-4 bg-red-100 border border-red-400 text-red-800 rounded-lg p-4 space-y-2"><strong class="text-sm font-bold">⚠️ DUPLICATE INVOICE DETECTED IN SYSTEM</strong><p class="text-xs">The invoice highlighted in red below already exists.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border border-red-200 rounded p-2.5 text-xs font-mono text-gray-700"><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Series ID</span> <span id="dupSeries" class="font-bold text-red-600"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">LR No.</span> <span id="dupLr"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Date</span> <span id="dupDate"></span></div><div><span class="block text-[10px] text-gray-400 font-sans uppercase font-bold">Transporter</span> <span id="dupTrans"></span></div></div></div><form id="entryForm" onsubmit="handleFormSubmit(event)" oninput="saveToLocalStorage()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="dateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Time Input Stamp *</label><input type="time" id="timeInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Department (Locked) *</label><input type="text" id="deptDisplayField" readonly value="B2B Dispatch" class="w-full p-2 border rounded-md bg-slate-100 font-semibold text-sm text-slate-700"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="transporterSelect" required onchange="toggleOtherInput(this, 'transporterOtherContainer', 'transporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select><div id="transporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="transporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 border-t pt-3"><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="vehicleNo" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Full Name *</label><input type="text" id="driverName" required placeholder="Enter Driver Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile Number *</label><input type="tel" id="driverMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm"></div></div><div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-sm font-bold text-slate-700 mb-3">Invoices Breakdown Log</h3><div id="invoiceContainer" class="space-y-3"></div><div class="flex justify-end mt-4 pt-2 border-t border-slate-200"><button type="button" onclick="addInvoiceRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">+ Add Invoice Row</button></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"><div><label class="block text-xs font-bold text-gray-600 mb-1">Pallet Count</label><input type="number" id="palletCount" min="0" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Loading Incharge *</label><select id="inchargeSelect" required onchange="toggleOtherInput(this, 'inchargeOtherContainer', 'inchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select><div id="inchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="inchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div></div><button type="submit" id="submitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Submit & Generate Gatepass</button></form></div>`;
-  const inventoryHtmlStr = `<div id="inventoryFormBlock" class="hidden"><h2 class="text-lg font-bold border-b pb-2 mb-4 text-slate-700">Inventory Operations Stream (Tab4)</h2><form id="inventoryLogForm" onsubmit="handleInventorySubmit(event)" oninput="saveInventoryToCache()"><div class="bg-slate-100 p-4 rounded-xl border mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"><div class="col-span-1 sm:col-span-2 md:col-span-4 border-b pb-1 mb-1"><h4 class="text-xs font-bold text-slate-600 uppercase">🔗 Inward Shipment Header Parameters</h4></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="invDateInput" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO / Invoice No *</label><input type="text" id="invPoInvoiceNo" required placeholder="Enter PO/Invoice ID" class="w-full p-2 border rounded-md text-sm bg-white font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Customer Name *</label><input type="text" id="invCustomerName" required placeholder="Enter Customer Name" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Inward Incharge *</label><select id="invInchargeSelect" required onchange="toggleOtherInput(this, 'invInchargeOtherContainer', 'invInchargeOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Incharge</option></select><div id="invInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="invInchargeOtherInput" placeholder="Type Incharge Name" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="invTransporterSelect" required onchange="toggleOtherInput(this, 'invTransporterOtherContainer', 'invTransporterOtherInput')" class="w-full p-2 border rounded-md bg-white text-sm"><option value="">Select Transporter</option></select><div id="invTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="invTransporterOtherInput" placeholder="Type Transporter" class="w-full p-1.5 border border-amber-400 rounded-md bg-amber-50 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle No *</label><input type="text" id="invVehicleNo" required placeholder="MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="invDriverName" required placeholder="Driver Full Name" class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Number *</label><input type="tel" id="invDriverNumber" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">LR No *</label><div class="flex space-x-1"><input type="text" id="invLrNo" required placeholder="LR Number" class="w-full p-2 border rounded-md text-sm font-mono"><button type="button" onclick="openMobileCameraScanner('invLrNo')" class="bg-amber-500 text-slate-950 px-2 text-xs rounded font-bold">📷 Scan</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Qty *</label><input type="number" id="invPoTotalQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">PO Total Box Qty *</label><input type="number" id="invPoTotalBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm font-bold"></div></div><div class="border-t border-b border-gray-200 py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-sm font-bold text-slate-700 mb-3">Physical Inward Material Row Matrix</h3><div id="inventoryItemsContainer" class="space-y-4"></div><div class="flex justify-end mt-4 pt-2"><button type="button" onclick="addInventoryItemRow()" class="bg-emerald-600 text-white text-xs font-bold py-2 px-4 rounded shadow-sm transition">+ Add Material Row</button></div></div><button type="submit" id="invSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm tracking-wide shadow">Commit Material Logs to Tab4 Ledger</button></form></div>`;
-  const rtoHtmlStr = `<div id="rtoFormBlock" class="hidden"><div class="flex border-b border-gray-200 mb-6 bg-slate-100 p-1 rounded-lg max-w-md"><button type="button" id="rtoB2bToggleTab" onclick="switchRtoSubWorkflow('B2B')" class="w-1/2 text-center py-2 px-4 rounded-md text-xs font-bold uppercase transition-all bg-amber-500 text-slate-950 shadow-sm">📦 B2B Return</button><button type="button" id="rtoB2cToggleTab" onclick="switchRtoSubWorkflow('B2C')" class="w-1/2 text-center py-2 px-4 rounded-md text-xs font-bold uppercase transition-all text-slate-600">🛵 B2C Courier Return</button></div><div id="rtoB2bLayoutSection"><h2 class="text-base font-bold text-slate-700 mb-1">B2B Return Log Matrix (Tab5)</h2><form id="rtoB2bForm" onsubmit="handleRtoB2bSubmit(event)" oninput="saveRtoToCache()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="rtoB2bDate" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Invoice No. *</label><input type="text" id="rtoB2bInvoice" required placeholder="Invoice No" class="w-full p-2 border rounded-md text-sm font-mono"></div><div class="relative"><label class="block text-xs font-bold text-gray-600 mb-1">LR No. *</label><div class="flex space-x-1"><input type="text" id="rtoB2bLrNo" required placeholder="LR Tracking ID" class="w-full p-2 border rounded-md text-sm font-mono"><button type="button" onclick="openMobileCameraScanner('rtoB2bLrNo')" class="bg-amber-500 text-slate-950 px-2 text-xs rounded font-bold">📷 Scan</button></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Return Incharge *</label><select id="rtoB2bInchargeSelect" required onchange="toggleOtherInput(this, 'rtoB2bInchargeOtherContainer', 'rtoB2bInchargeOtherInput')" class="rto-inch-drop w-full p-2 border rounded-md text-sm"><option value="">Select Incharge</option></select><div id="rtoB2bInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2bInchargeOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"><div id="rtoTransDropDiv"><label class="block text-xs font-bold text-gray-600 mb-1">Transporter *</label><select id="rtoB2bTransporterSelect" required onchange="toggleOtherInput(this, 'rtoB2bTransporterOtherContainer', 'rtoB2bTransporterOtherInput')" class="rto-trans-drop w-full p-2 border rounded-md text-sm"><option value="">Select Transporter</option></select><div id="rtoB2bTransporterOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2bTransporterOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Box Qty *</label><input type="number" id="rtoB2bBoxQty" min="1" required class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="rtoB2bVehicle" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 border-t pt-3"><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Name *</label><input type="text" id="rtoB2bDriver" required placeholder="Driver Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile No. *</label><input type="tel" id="rtoB2bMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div></div><div class="mb-6"><label class="block text-xs font-bold text-red-600 mb-1">Operational Remark *</label><input type="text" id="rtoB2bRemark" required placeholder="Describe damages..." class="w-full p-2 border rounded-md text-sm border-slate-300"></div><button type="submit" id="rtoB2bSubmitBtn" class="w-full brand-bg text-white py-3 rounded-md font-bold text-sm shadow">Log B2B Return Entry</button></form></div><div id="rtoB2cLayoutSection" class="hidden"><h2 class="text-base font-bold text-slate-700 mb-1">B2C Return Log Matrix (Tab6)</h2><form id="rtoB2cForm" onsubmit="handleRtoB2cSubmit(event)" oninput="saveRtoToCache()"><div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-4"><div><label class="block text-xs font-bold text-gray-600 mb-1">Date *</label><input type="date" id="rtoB2cDate" required class="w-full p-2 border rounded-md text-sm bg-white"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Vehicle Registration No. *</label><input type="text" id="rtoB2cVehicle" required placeholder="e.g. MH-12-XX-1234" class="w-full p-2 border rounded-md text-sm uppercase font-mono"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Courier / Transporter *</label><select id="rtoB2cCourierSelect" required onchange="toggleOtherInput(this, 'rtoB2cCourierOtherContainer', 'rtoB2cCourierOtherInput')" class="rto-trans-drop w-full p-2 border rounded-md text-sm"><option value="">Select Courier Engine</option></select><div id="rtoB2cCourierOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2cCourierOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Return Incharge *</label><select id="rtoB2cInchargeSelect" required onchange="toggleOtherInput(this, 'rtoB2cInchargeOtherContainer', 'rtoB2cInchargeOtherInput')" class="rto-inch-drop w-full p-2 border rounded-md text-sm"><option value="">Select Incharge</option></select><div id="rtoB2cInchargeOtherContainer" class="mt-1.5 hidden"><input type="text" id="rtoB2cInchargeOtherInput" class="w-full p-1.5 border rounded-md text-sm bg-amber-50"></div></div></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 border-t pt-3"><div id="rtoRiderNameDiv"><label class="block text-xs font-bold text-gray-600 mb-1">Delivery Rider Name *</label><input type="text" id="rtoB2cDriver" required placeholder="Rider Name" class="w-full p-2 border rounded-md text-sm"></div><div><label class="block text-xs font-bold text-gray-600 mb-1">Driver Mobile No. *</label><input type="tel" id="rtoB2cMobile" required pattern="[0-9]{10}" placeholder="10-Digit Mobile" class="w-full p-2 border rounded-md text-sm font-mono"></div></div><div class="mb-4"><label class="block text-xs font-bold text-red-600 mb-1">Global Return Operational Remark *</label><input type="text" id="rtoB2cCommonRemark" required value="No Damage" class="w-full p-2 border rounded-md text-sm"></div><div class="border-t border-b py-4 my-4 bg-slate-50 p-3 rounded-lg"><h3 class="text-xs font-bold text-slate-700 mb-2 uppercase">AWB Shipping Records Breakdown Grid</h3><div id="rtoB2cAwbContainer" class="space-y-2.5"></div><div class="flex justify-end mt-3"><button type="button" onclick="addRtoB2cAwbRow()" class="bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded shadow-xs transition">+ Add AWB Code Row</button></div></div><button type="submit" id="rtoB2cSubmitBtn" class="w-full bg-amber-500 text-slate-950 py-3 rounded-md font-bold text-sm tracking-wide shadow">Log B2C Return Entries</button></form></div></div>`;
-  const masterHtmlStr = `<div class="space-y-6"><div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-3"><div><h2 class="text-lg font-bold text-slate-700">Central Product Master Repository (Tab3) <span id="pmTotalCountBadge" class="ml-2 bg-amber-500 text-slate-950 font-mono text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span></h2><p class="text-xs text-slate-400">View SKU catalogs and upload master logs.</p></div><div class="flex items-center space-x-2"><label class="bg-emerald-600 text-white font-bold text-xs py-2 px-3 rounded shadow transition cursor-pointer">📥 Upload Excel CSV<input type="file" id="excelCsvFileInput" accept=".csv" onchange="handleExcelCsvImport(this)" class="hidden"></label><button onclick="downloadProductMasterAsCsv()" class="bg-blue-600 text-white font-bold text-xs py-2 px-3 rounded shadow">📤 Download Catalog</button><button onclick="toggleAddProductModal(true)" class="bg-amber-500 text-slate-950 font-bold text-xs py-2 px-3 rounded shadow">+ Register Item</button></div></div><div class="flex flex-col sm:flex-row items-center gap-2"><div class="w-full"><input type="text" id="pmSearchQuery" onkeyup="filterProductMasterViewTable()" placeholder="Search Item Master by Name, SKU, or Barcode..." class="w-full p-2 border rounded text-sm font-medium bg-white"></div><div class="w-full sm:w-48 flex items-center space-x-1.5"><label class="text-xs font-bold text-slate-500 whitespace-nowrap">View Limit:</label><select id="pmViewLimitSelect" onchange="filterProductMasterViewTable()" class="w-full p-2 border rounded text-sm bg-white text-gray-700"><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="200" selected>200 Rows</option><option value="500">500 Rows</option></select></div></div><div class="overflow-x-auto border rounded-lg shadow-xs"><table class="min-w-full divide-y text-xs text-left"><thead class="bg-slate-800 text-white font-semibold uppercase text-[10px]"><tr><th class="px-4 py-3">Item Barcode</th><th class="px-4 py-3">SKU Code</th><th class="px-4 py-3">Item Description Name</th><th class="px-4 py-3">UOM</th><th class="px-4 py-3">Pack Size</th></tr></thead><tbody id="productMasterTableBody" class="divide-y bg-white text-gray-600"></tbody></table></div></div>`;
-
-  container.innerHTML = dispatchHtmlStr + inventoryHtmlStr + rtoHtmlStr;
-  masterContainer.innerHTML = masterHtmlStr;
-  
-  // Triggers the automated drafts recovery sequence
-  loadB2bCacheData();
-  loadInventoryCacheData();
-  loadRtoCacheData();
-  
-  initFormInterceptorsAndDropdowns();
-}
-
-function toggleOtherInput(selectElement, containerId, inputId) {
-  var container = document.getElementById(containerId);
-  var input = document.getElementById(inputId);
-  if (selectElement.value === "Other") {
-    container.classList.remove('hidden'); input.required = true; input.focus();
-  } else {
-    container.classList.add('hidden'); input.required = false; input.value = "";
-  }
-}
-
-function toggleSubMenu(menuId, open = false) {
-  var m = document.getElementById(menuId);
-  if (!m) return;
-  if (m.style.maxHeight && m.style.maxHeight !== "0px" && !open) { m.style.maxHeight = "0px"; m.style.opacity = "0"; }
-  else { m.style.maxHeight = "250px"; m.style.opacity = "1"; }
-}
-
-function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('-translate-x-full'); document.getElementById('menuBackdrop').classList.toggle('hidden'); }
-
-function activateModuleWorkflow(deptName, viewTarget) {
-  workflowDept = deptName; currentViewTarget = viewTarget;
-  localStorage.setItem('active_workflow_dept', deptName); localStorage.setItem('current_view_target', viewTarget);
-  document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
-  evaluateActiveWorkflowViewState(); switchView(viewTarget); fetchLiveDashboardDataRecords();
-}
-
-function evaluateActiveWorkflowViewState() {
-  var b2b = document.getElementById('b2bDispatchFormBlock');
-  var inv = document.getElementById('inventoryFormBlock');
-  var rto = document.getElementById('rtoFormBlock');
-  if(b2b) b2b.classList.add('hidden'); if(inv) inv.classList.add('hidden'); if(rto) rto.classList.add('hidden');
-  if (workflowDept === "B2B Dispatch" && b2b) { b2b.classList.remove('hidden'); if(document.getElementById('invoiceContainer')?.children.length === 0) addInvoiceRow(); }
-  else if (workflowDept === "Inventory Logging" && inv) { inv.classList.remove('hidden'); initInventorySearchableDropdownEngine(); }
-  else if (workflowDept === "RTO (IN)" && rto) { rto.classList.remove('hidden'); }
-}
-
-async function executeLiveDuplicateCheck(input) {
-  var val = input.value.trim(); if (!val) return;
-  const res = await apiFetch("checkInvoiceDuplicateLive", val);
-  var box = document.getElementById('liveDuplicateWarningBox');
-  if (res && res.isDuplicate) {
-    input.classList.add('border-red-500', 'bg-red-50');
-    document.getElementById('dupSeries').innerText = res.seriesNo; document.getElementById('dupLr').innerText = res.lrNo;
-    document.getElementById('dupDate').innerText = res.date; document.getElementById('dupTrans').innerText = res.transporter;
-    box.classList.remove('hidden'); isSubmissionHaltedForDuplicate = true;
-    document.getElementById('submitBtn').disabled = true; document.getElementById('submitBtn').innerText = "LOCKED";
-  } else { input.classList.remove('border-red-500', 'bg-red-50'); evaluateFormSubmissionSubmissionValidityState(); }
-}
-
-function evaluateFormSubmissionSubmissionValidityState() {
-  var inputs = document.querySelectorAll('.invoice-num'); var found = false;
-  for(var i=0; i<inputs.length; i++) { if(inputs[i].classList.contains('border-red-500')) { found = true; break; } }
-  if(!found) { document.getElementById('liveDuplicateWarningBox').classList.add('hidden'); isSubmissionHaltedForDuplicate = false; document.getElementById('submitBtn').disabled = false; document.getElementById('submitBtn').innerText = "Submit & Generate Gatepass"; }
-}
-
-// Master SKU Catalog Functions
-function syncProductMasterLocalState(recs) {
-  var body = document.getElementById('productMasterTableBody'); if(!body) return; body.innerHTML = "";
-  if (!recs) return;
-  document.getElementById('pmTotalCountBadge').innerText = recs.length + " Items";
-  recs.slice(0, 100).forEach(item => {
-    body.insertAdjacentHTML('beforeend', `<tr class="hover:bg-slate-50"><td class="px-4 py-2 font-mono">${item.barcode}</td><td class="px-4 py-2 font-mono font-bold">${item.skuCode}</td><td class="px-4 py-2">${item.itemName}</td><td class="px-4 py-2">${item.uom}</td><td class="px-4 py-2 font-mono">${item.packSize}</td></tr>`);
-  });
-}
-
-function applyFilters() {
-  var s = document.getElementById('searchSeries').value.toLowerCase().trim();
-  var i = document.getElementById('searchInvoice').value.toLowerCase().trim();
-  currentlyFilteredData = masterData.filter(r => (!s || r.seriesNo.toString().toLowerCase().includes(s)) && (!i || r.invoice.toString().toLowerCase().includes(i)));
-  renderTable(currentlyFilteredData);
-}
-
-// Dynamic Hard-Copy Slips & Core Data Modifiers
-async function runDatabaseCorrectionRoutine() {
-  var p = { type: document.getElementById('corrType').value, searchKey: document.getElementById('corrSearchKey').value.trim(), replacementValue: document.getElementById('corrNewValue').value.trim() };
-  const res = await apiFetch("executeOperationalCorrection", p); if(res) alert(res.message); window.location.reload();
-}
-
-async function executeReprintQuery() {
-  const res = await apiFetch("fetchUniversalGatepassRecord", { seriesId: document.getElementById('searchSeriesId').value.trim(), currentWorkspace: document.getElementById('reprintSourceDept').value });
-  if(res && res.success) renderPrintLayout(res.record, res.record.seriesNo);
-}
-
-function adjustReprintLabelsText() {
-  var source = document.getElementById('reprintSourceDept').value;
-  var title = document.getElementById('reprintHeaderTitle');
-  var label = document.getElementById('reprintSeriesInputLabel');
-  if (source === "B2B Dispatch") {
-    title.innerText = "Reprint Historical Gatepass Slip"; label.innerText = "Enter Unique Gatepass ID *";
-  } else {
-    title.innerText = "Reprint Historical Gate Entry Slip"; label.innerText = "Enter Unique Gate Entry No *";
-  }
-}
-
-function updateCorrectionLabels() {
-  var type = document.getElementById('corrType').value;
-  var keyLbl = document.getElementById('searchKeyLabel');
-  var valLbl = document.getElementById('newValueLabel');
-  if (type === "inv_against_lr") {
-    keyLbl.innerText = "Enter Known LR Number *"; valLbl.innerText = "Enter New Corrected Invoice Number *";
-  } else {
-    keyLbl.innerText = "Enter Known Invoice Number *"; valLbl.innerText = "Enter New Corrected LR Number *";
-  }
-}
-
-// Check session authentication state on boot
+// Check session authentication state on boot execution segments
 var savedEmail = localStorage.getItem('logged_session_email');
 if(savedEmail && savedEmail.includes('@')) {
   currentUserEmail = savedEmail;
   var uDisp = document.getElementById('userDisplay'); if(uDisp) uDisp.innerText = currentUserEmail;
-  document.getElementById('view-login').classList.add('hidden');
-  document.getElementById('view-portal').classList.remove('hidden');
+  var viewLogin = document.getElementById('view-login'); if(viewLogin) viewLogin.classList.add('hidden');
+  var viewPortal = document.getElementById('view-portal'); if(viewPortal) viewPortal.classList.remove('hidden');
   loadWorkflowHtmlFiles();
 } else {
-  document.getElementById('view-login').classList.remove('hidden');
-  document.getElementById('view-portal').classList.add('hidden');
+  var viewLogin = document.getElementById('view-login'); if(viewLogin) viewLogin.classList.remove('hidden');
+  var viewPortal = document.getElementById('view-portal'); if(viewPortal) viewPortal.classList.add('hidden');
 }
