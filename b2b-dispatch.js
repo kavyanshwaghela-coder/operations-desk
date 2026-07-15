@@ -120,10 +120,24 @@ function addInvoiceRow(savedNum = '', savedBox = '', savedLr = '') {
   var rowId = 'row_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
   var html = `
     <div id="${rowId}" class="grid grid-cols-1 md:grid-cols-3 gap-2 bg-white p-2.5 border border-slate-200 rounded shadow-xs relative">
-      <div><label class="block text-[10px] uppercase font-bold text-gray-400">Invoice Number *</label><input type="text" maxlength="9" minlength="9" pattern="[0-9]{9}" value="${savedNum}" required onblur="executeLiveDuplicateCheck(this)" class="invoice-num w-full p-1.5 border text-sm rounded bg-white"></div>
-      <div><label class="block text-[10px] uppercase font-bold text-gray-400">Box Count *</label><input type="number" min="1" value="${savedBox}" required class="box-count w-full p-1.5 border text-sm rounded bg-white"></div>
+      <div>
+        <label class="block text-[10px] uppercase font-bold text-gray-400">Invoice Number *</label>
+        <input type="text" maxlength="9" minlength="9" pattern="[0-9]{9}" value="${savedNum}" required onblur="executeLiveDuplicateCheck(this)" class="invoice-num w-full p-1.5 border text-sm rounded bg-white">
+      </div>
+      <div>
+        <label class="block text-[10px] uppercase font-bold text-gray-400">Box Count *</label>
+        <input type="number" min="1" value="${savedBox}" required class="box-count w-full p-1.5 border text-sm rounded bg-white">
+      </div>
       <div class="flex items-end space-x-1">
-        <div class="w-full"><label class="block text-[10px] uppercase font-bold text-gray-400">LR No *</label><input type="text" value="${savedLr}" required class="lr-no w-full p-1.5 border text-sm rounded bg-white"></div>
+        <div class="w-full">
+          <label class="block text-[10px] uppercase font-bold text-gray-400">LR No *</label>
+          <div class="flex space-x-1">
+            <input type="text" value="${savedLr}" required class="lr-no w-full p-1.5 border text-sm rounded bg-white">
+            <button type="button" onclick="openCameraScanner('${rowId}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2 py-1.5 text-xs rounded transition flex items-center space-x-0.5">
+              <span>📷</span><span>Scan</span>
+            </button>
+          </div>
+        </div>
         ${container.children.length > 0 ? `<button type="button" onclick="document.getElementById('${rowId}').remove(); saveToLocalStorage();" class="bg-red-500 text-white px-2 py-1.5 rounded font-bold">X</button>` : ''}
       </div>
     </div>`;
@@ -191,13 +205,24 @@ async function handleFormSubmit(e) {
     palletCount: document.getElementById('palletCount').value || 0, incharge: finalIncharge, invoices: invoicesData
   };
 
-  const res = await callBackend("submitEntries", { formData: payload });
-  btn.disabled = false; btn.innerText = "Submit & Generate Gatepass";
-  if(res.success) {
-    renderPrintLayout(payload, res.seriesNo);
-    localStorage.removeItem('cached_form_B2B_Dispatch');
-    document.getElementById('entryForm').reset();
-    document.getElementById('invoiceContainer').innerHTML = ''; addInvoiceRow();
-    fetchLiveDashboardDataRecords();
-  } else alert(res.message);
+  var formData = new FormData();
+  formData.append("action", "submitEntries");
+  formData.append("payload", JSON.stringify({ formData: payload }));
+  formData.append("userEmail", currentUserEmail); // Fixes anonymous logging error
+
+  try {
+    const response = await fetch(API_URL, { method: "POST", body: formData });
+    const res = await response.json();
+    btn.disabled = false; btn.innerText = "Submit & Generate Gatepass";
+    if(res.success) {
+      renderPrintLayout(payload, res.seriesNo);
+      localStorage.removeItem('cached_form_B2B_Dispatch');
+      document.getElementById('entryForm').reset();
+      document.getElementById('invoiceContainer').innerHTML = ''; addInvoiceRow();
+      fetchLiveDashboardDataRecords();
+    } else alert(res.message);
+  } catch (err) {
+    btn.disabled = false; btn.innerText = "Submit & Generate Gatepass";
+    alert("Submission error: " + err.toString());
+  }
 }
