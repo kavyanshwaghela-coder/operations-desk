@@ -1,0 +1,26 @@
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-3">
+    <div>
+      <h2 class="text-lg font-bold text-slate-700">Central Product Master Repository (Tab3) <span id="pmTotalCountBadge" class="ml-2 bg-amber-500 text-slate-950 font-mono text-xs px-2 py-0.5 rounded-full font-bold">0 Items</span></h2>
+      <p class="text-xs text-slate-400">View SKU catalogs and upload raw operational files into master log systems.</p>
+    </div>
+    <div class="flex items-center space-x-2">
+      <label class="bg-emerald-600 text-white font-bold text-xs py-2 px-3 rounded shadow transition cursor-pointer">📥 Upload Excel CSV<input type="file" id="excelCsvFileInput" accept=".csv" onchange="handleExcelCsvImport(this)" class="hidden"></label>
+      <button onclick="downloadProductMasterAsCsv()" class="bg-blue-600 text-white font-bold text-xs py-2 px-3 rounded shadow">📤 Download Catalog</button>
+      <button onclick="toggleAddProductModal(true)" class="bg-amber-500 text-slate-950 font-bold text-xs py-2 px-3 rounded shadow">+ Register Item</button>
+    </div>
+  </div>
+  <div class="flex flex-col sm:flex-row items-center gap-2">
+    <div class="w-full"><input type="text" id="pmSearchQuery" onkeyup="filterProductMasterViewTable()" placeholder="Search Item Master by Name, SKU, or Barcode..." class="w-full p-2 border rounded text-sm font-medium bg-white"></div>
+    <div class="w-full sm:w-48 flex items-center space-x-1.5">
+      <label class="text-xs font-bold text-slate-500 whitespace-nowrap">View Limit:</label>
+      <select id="pmViewLimitSelect" onchange="filterProductMasterViewTable()" class="w-full p-2 border rounded text-sm bg-white text-gray-700"><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="200" selected>200 Rows</option><option value="500">500 Rows</option></select>
+    </div>
+  </div>
+  <div class="overflow-x-auto border rounded-lg shadow-xs">
+    <table class="min-w-full divide-y text-xs text-left">
+      <thead class="bg-slate-800 text-white font-semibold uppercase text-[10px]"><tr><th class="px-4 py-3">Item Barcode</th><th class="px-4 py-3">SKU Code</th><th class="px-4 py-3">Item Description Name</th><th class="px-4 py-3">UOM</th><th class="px-4 py-3">Pack Size</th></tr></thead>
+      <tbody id="productMasterTableBody" class="divide-y bg-white text-gray-600"></tbody>
+    </table>
+  </div>
+</div>
