@@ -657,19 +657,28 @@ function updateCorrectionLabels() {
 }
 
 // Check session authentication state on boot
-window.addEventListener('DOMContentLoaded', function() {
-  var savedEmail = localStorage.getItem('logged_session_email');
-  if(savedEmail && savedEmail.includes('@')) {
-    currentUserEmail = savedEmail;
-    var uDisp = document.getElementById('userDisplay'); 
-    if(uDisp) uDisp.innerText = currentUserEmail;
-    
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-portal').classList.remove('hidden');
-    
-    loadWorkflowHtmlFiles();
-  } else {
-    document.getElementById('view-login').classList.remove('hidden');
-    document.getElementById('view-portal').classList.add('hidden');
-  }
-});
+// --- Force Global Scope Binding for Click Handlers ---
+window.toggleSidebar = function() {
+  document.getElementById('sidebarMenu').classList.toggle('-translate-x-full');
+  document.getElementById('menuBackdrop').classList.toggle('hidden');
+};
+
+window.toggleSubMenu = function(menuId, open = false) {
+  var m = document.getElementById(menuId);
+  if (!m) return;
+  if (m.style.maxHeight && m.style.maxHeight !== "0px" && !open) { m.style.maxHeight = "0px"; m.style.opacity = "0"; }
+  else { m.style.maxHeight = "250px"; m.style.opacity = "1"; }
+};
+
+window.activateModuleWorkflow = function(deptName, viewTarget) {
+  workflowDept = deptName; currentViewTarget = viewTarget;
+  localStorage.setItem('active_workflow_dept', deptName);
+  localStorage.setItem('current_view_target', viewTarget);
+  document.getElementById('moduleTitle').innerText = workflowDept + " Workspace";
+  evaluateActiveWorkflowViewState();
+  switchView(viewTarget);
+  fetchLiveDashboardDataRecords();
+  toggleSidebar();
+};
+
+// ... [Keep the rest of your existing logic below this point] ...
