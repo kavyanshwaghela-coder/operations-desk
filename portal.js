@@ -119,12 +119,22 @@ async function executePasswordOtpVerification() {
   var email = document.getElementById('email').value.trim();
   var token = document.getElementById('otpTokenInput').value.trim();
   const res = await apiFetch("verifyOtpAndRetrievePassword", { email: email, userEnteredOtp: token, trueOtp: currentTrueOtpSeed });
+  
   if(res && res.success) {
-    if (otpPurpose === 'login') { localStorage.setItem('logged_session_email', email); window.location.reload(); }
-    else { document.getElementById('otpVerificationBlock').classList.add('hidden'); document.getElementById('passwordResetBlock').classList.remove('hidden'); showMessage("Token authorized! Set new password.", true); }
-  } else { showMessage(res ? res.message : "Invalid verification code entry.", false); }
+    if (otpPurpose === 'login') { 
+      localStorage.setItem('logged_session_email', email); 
+      // Force a delayed reload to ensure localStorage is committed
+      setTimeout(function() { window.location.href = window.location.href; }, 500); 
+    }
+    else { 
+      document.getElementById('otpVerificationBlock').classList.add('hidden'); 
+      document.getElementById('passwordResetBlock').classList.remove('hidden'); 
+      showMessage("Token authorized! Set new password.", true); 
+    }
+  } else { 
+    showMessage(res ? res.message : "Invalid verification code entry.", false); 
+  }
 }
-
 async function submitNewPasswordData() {
   var email = document.getElementById('email').value.trim();
   var newPass = document.getElementById('newPassInput').value.trim();
